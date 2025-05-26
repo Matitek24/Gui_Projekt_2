@@ -8,7 +8,7 @@ public class InputDialog extends JDialog {
     private final JTextField textField = new JTextField(20);
     private boolean confirmed = false;
 
-    public InputDialog(Component parent, String message, String title) {
+    private InputDialog(Component parent, String message, String title) {
         setModal(true);
         setTitle(title);
         setLayout(new BorderLayout());

@@ -1,5 +1,6 @@
 package Model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -7,7 +8,9 @@ import java.util.Set;
 
 import Exception.NotUniqueNameException;
 
-public class Dzial {
+import javax.swing.*;
+
+public class Dzial implements Serializable {
     private String nazwaDzialu;
     private ArrayList<Pracownik> pracownicy;
     private static Set<String> grupa_nazw = new HashSet<>();
@@ -31,9 +34,27 @@ public class Dzial {
         this.pracownicy.add(pracownik);
 
     }
+    public void rename(String newName) throws NotUniqueNameException {
+        if(grupa_nazw.contains(newName)){
+            throw new NotUniqueNameException(newName + " juz istnieje");
+        }
+        grupa_nazw.remove(this.nazwaDzialu);
+        this.nazwaDzialu = newName;
+        grupa_nazw.add(newName);
+    }
+    public static void unregisterName(String nazwaDzialu) {
+        grupa_nazw.remove(nazwaDzialu);
+    }
+
     // Gettery
     public String getNazwa_dzialu() {
         return nazwaDzialu;
+    }
+    public int getId() {
+        return id;
+    }
+    public static void setCounter(int value) {
+        counter = value;
     }
 
     // ToString

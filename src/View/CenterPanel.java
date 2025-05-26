@@ -71,12 +71,16 @@ public class CenterPanel extends JPanel {
 
     private TablePanel createDzialPanel() {
         Object[][] rowData = DzialService.getDzialy().stream()
-                .map(d -> new Object[]{ d.getNazwa_dzialu() })
+                .map(d -> new Object[]{
+                        d.getId(),
+                        d.getNazwa_dzialu()
+                })
                 .toArray(Object[][]::new);
 
+        // teraz dwie kolumny: "ID" i "Nazwa"
         return TablePanelFactory.createTablePanel(
                 "Działy",
-                new String[]{ "Nazwa" },
+                new String[]{ "ID", "Nazwa" },
                 rowData
         );
     }

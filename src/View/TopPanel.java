@@ -41,14 +41,28 @@ public class TopPanel extends JPanel {
                 if(button.getText().equals("Nowy")){
                     button.addActionListener(e -> {
                      String nazwa_dzialu = promptForInput("Podaj nazwe nowego dzialu", "Tworzenie Dzialu");
+
+                        if (nazwa_dzialu == null || nazwa_dzialu.trim().isEmpty()) {
+                            JOptionPane.showMessageDialog(this, "Nie podano nazwy działu");
+                            return;
+                        }
+
                         try {
-                            Dzial dzial1 = Dzial.createDzial(nazwa_dzialu);
+                            Dzial dzial1 = Dzial.createDzial(nazwa_dzialu.trim());
                             DzialService.addDzial(dzial1);
 
                             TablePanel tp = centralny.getDzialPanel();
-                            tp.getTableModel().addRow(new Object[]{nazwa_dzialu});
+                            tp.getTableModel().addRow(new Object[]{
+                                    dzial1.getId(),
+                                    dzial1.getNazwa_dzialu()
+                            });
                         } catch (NotUniqueNameException b) {
-                            System.out.println("Błąd: " + b.getMessage());
+                            JOptionPane.showMessageDialog(
+                                    this,
+                                    b.getMessage(),
+                                    "Niepowodzenie operacji",
+                                    JOptionPane.ERROR_MESSAGE
+                            );
                         }
                     });
                 }
@@ -61,7 +75,17 @@ public class TopPanel extends JPanel {
                             JOptionPane.showMessageDialog(this,"Brak działów");
                             return;
                         }
-                        String selected = selectObject(nazwy,"Wybierz dział do usuniecia", "Usun dzial");
+
+                        // Użycie DeleteDialog
+                        String selected = DeleteDialog.showDialog(
+                                this,
+                                nazwy,
+                                "Wybierz dział do usunięcia:",
+                                "Usuń Dział"
+                        );
+
+                        if(selected == null) return;
+
                         Dzial toRemove = DzialService.getDzialy().stream()
                                 .filter(d -> d.getNazwa_dzialu().equals(selected))
                                 .findFirst().orElse(null);
@@ -71,13 +95,12 @@ public class TopPanel extends JPanel {
                             TablePanel tp = centralny.getDzialPanel();
                             DefaultTableModel model = tp.getTableModel();
                             for(int i = 0; i < model.getRowCount(); i++){
-                                if(selected.equals(model.getValueAt(i, 0))){
+                                if(selected.equals(model.getValueAt(i, 1))){
                                     model.removeRow(i);
                                     break;
                                 }
                             }
                         }
-
                     });
                 }
                 if(button.getText().equals("Edycja")){
@@ -87,23 +110,49 @@ public class TopPanel extends JPanel {
                             JOptionPane.showMessageDialog(this,"Brak działów");
                             return;
                         }
-                        String selected = selectObject(nazwy,"Wybierz dział do Edycji", "Edytuj Dzial");
-                        if(selected == null) return;
-                        String newName = promptForInput("Podaje nazwe nowego dzialu", "Edycja Dzialu");
-                        if(newName == null ) return ;
-                        try{
-                           Dzial oldDzial = DzialService.getDzialy().stream()
-                                   .filter(d->d.getNazwa_dzialu().equals(selected))
-                                   .findFirst().orElse(null);
 
-                            if(oldDzial != null){
-                                DzialService.removeDzial(oldDzial);
-                                Dzial update = Dzial.createDzial(newName);
+                        String[] result = EditDialog.showDialog(
+                                this,
+                                nazwy,
+                                "Wybierz dział do edycji",
+                                "Podaj nazwe nowego działu",
+                                "Edycja działu"
+                        );
+
+                        if (result != null) {
+                            String selectedName = result[0];
+                            String newName = result[1];
+
+                            try{
+                                Dzial oldDzial = DzialService.getDzialy().stream()
+                                        .filter(d -> d.getNazwa_dzialu().equals(selectedName))
+                                        .findFirst().orElse(null);
+
+                                if(oldDzial != null){
+                                    oldDzial.rename(newName);
+                                    DzialService.removeDzial(oldDzial);
+                                    Dzial update = Dzial.createDzial(newName);
+                                    DzialService.addDzial(update);
+
+                                    TablePanel tp = centralny.getDzialPanel();
+                                    DefaultTableModel model = tp.getTableModel();
+                                    for(int i = 0; i < model.getRowCount(); i++){
+                                        if(selectedName.equals(model.getValueAt(i, 1))){
+                                            model.setValueAt(newName, i, 1);
+                                            break;
+                                        }
+                                    }
+
+                                }
+                            }catch (NotUniqueNameException b){
+                                JOptionPane.showMessageDialog(
+                                        this,
+                                        b.getMessage(),
+                                        "Niepowodzenie operacji",
+                                        JOptionPane.ERROR_MESSAGE
+                                );
                             }
-                        }catch (NotUniqueNameException b){
-                            JOptionPane.showMessageDialog(this, "Błąd: " + b.getMessage());
                         }
-
                     });
                 }
             }

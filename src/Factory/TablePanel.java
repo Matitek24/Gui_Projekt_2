@@ -8,6 +8,7 @@ import java.awt.*;
 
 public class TablePanel extends JPanel {
     private DefaultTableModel tableModel;
+    private JTable table;
     public TablePanel(String title, String[] columnNames, Object[][] data) {
         super(new BorderLayout());
         setBorder(new LineBorder(Color.BLACK));
@@ -23,10 +24,13 @@ public class TablePanel extends JPanel {
                 return false;
             }
         };
-        JTable table = new JTable(tableModel);
+        table = new JTable(tableModel);
+
         add(new JScrollPane(table), BorderLayout.CENTER);
         }
-
+        public JTable getTable() {
+            return table;
+        }
         public DefaultTableModel getTableModel() {
             return tableModel;
         }
