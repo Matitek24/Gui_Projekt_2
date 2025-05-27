@@ -64,6 +64,10 @@ public class Database<T extends Serializable> implements Serializable {
             items = new ArrayList<>();
         }
     }
+    public void saveItems(List<T> items) {
+        this.items = items;
+        saveToFile();
+    }
 
     private String getFileName() {
         // np. src/dane/db_Dzial.bin

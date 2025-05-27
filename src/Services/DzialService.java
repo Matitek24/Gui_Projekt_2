@@ -16,6 +16,7 @@ public class DzialService {
 
     public static void removeDzial(Dzial d) {
         db.remove(d);
+        initializeCounter();
         Dzial.unregisterName(d.getNazwa_dzialu());
     }
 

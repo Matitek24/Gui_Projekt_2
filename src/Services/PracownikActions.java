@@ -8,6 +8,7 @@ import Interface.EntityActions;
 import Model.Dzial;
 import Model.Pracownik;
 import View.CenterPanel;
+import Factory.DeleteHelper;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -51,10 +52,91 @@ public class PracownikActions implements EntityActions {
     }
     @Override
     public void onDelete() {
+        List<Pracownik> pracownicy = PracownikService.getPracownicy();
+        if (pracownicy.isEmpty()) {
+            JOptionPane.showMessageDialog(parent, "Brak pracowników");
+            return;
+        }
 
+        DeleteHelper.deleteMultiple(
+                parent,
+                pracownicy,
+                p -> p.getId() + " – " + p.getImie() + " " + p.getNazwisko(),
+                PracownikService::removePracownik,
+                deletedList -> {
+                    TablePanel tp = centerPanel.getPracownikPanel();
+                    DefaultTableModel model = tp.getTableModel();
+
+                    for (int row = model.getRowCount() - 1; row >= 0; row--) {
+                        int idInRow = (Integer) model.getValueAt(row, 0);
+                        if (deletedList.stream().anyMatch(p -> p.getId() == idInRow)) {
+                            model.removeRow(row);
+                        }
+                    }
+                }
+        );
     }
+
     @Override
     public void onEdit() {
+        // Pobierz wszystkich pracowników
+        List<Pracownik> pracownicy = PracownikService.getPracownicy();
+        if (pracownicy.isEmpty()) {
+            JOptionPane.showMessageDialog(parent, "Brak pracowników do edycji.");
+            return;
+        }
 
+        // Stwórz tablicę wyboru w formacie "ID – Imię Nazwisko"
+        String[] options = pracownicy.stream()
+                .map(p -> p.getId() + " – " + p.getImie() + " " + p.getNazwisko())
+                .toArray(String[]::new);
+
+        // Wyświetl okno wyboru
+        String selected = (String) JOptionPane.showInputDialog(
+                parent,
+                "Wybierz pracownika do edycji:",
+                "Edytuj pracownika",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+        if (selected == null) {
+            // użytkownik anulował
+            return;
+        }
+
+        // Z parsowanego teksu wyciągnij ID (to, co było przed " – ")
+        int id = Integer.parseInt(selected.split(" – ")[0]);
+        Optional<Pracownik> opt = PracownikService.getPracownikById(id);
+        if (opt.isEmpty()) {
+            JOptionPane.showMessageDialog(parent, "Pracownik o ID " + id + " nie znaleziony.");
+            return;
+        }
+
+        // Otwórz dialog edycji
+        Frame frame = JOptionPane.getFrameForComponent(parent);
+        Optional<Pracownik> updated = AddEmployeeDialog.showDialog(frame, opt.get());
+        if (updated.isEmpty()) {
+            // użytkownik anulował edycję
+            return;
+        }
+
+        Pracownik p = updated.get();
+
+        // Znajdź wiersz z tym ID w tabeli i zaktualizuj komórki
+        TablePanel tp = centerPanel.getPracownikPanel();
+        DefaultTableModel model = tp.getTableModel();
+        JTable table = tp.getTable();
+        for (int row = 0; row < model.getRowCount(); row++) {
+            if (((Integer)model.getValueAt(row, 0)).intValue() == id) {
+                model.setValueAt(p.getImie(), row, 1);
+                model.setValueAt(p.getNazwisko(), row, 2);
+                model.setValueAt(p.getDzial().getNazwa_dzialu(), row, 3);
+                model.setValueAt(p.getDataUrodzenia(), row, 4);
+                break;
+            }
+        }
     }
+
 }

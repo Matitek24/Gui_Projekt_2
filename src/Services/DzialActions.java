@@ -4,6 +4,7 @@ import Dialog.DeleteDialog;
 import Dialog.EditDialog;
 import Dialog.InputDialog;
 import Exception.NotUniqueNameException;
+import Factory.DeleteHelper;
 import Factory.TablePanel;
 import Interface.EntityActions;
 import Model.Dzial;
@@ -43,35 +44,28 @@ public class DzialActions implements EntityActions {
 
     @Override
     public void onDelete() {
-        List<String> nazwy = DzialService.getNazwyDzialow();
-        if (nazwy.isEmpty()) {
+        List<Dzial> dzialy = DzialService.getDzialy();
+        if (dzialy.isEmpty()) {
             JOptionPane.showMessageDialog(parent, "Brak działów");
             return;
         }
 
-        // Nowe dialog z wielokrotnym wyborem:
-        List<String> selectedList = DeleteDialog.showDialog(parent, nazwy, "Wybierz działy do usunięcia", "Usuń działy");
-        if (selectedList.isEmpty()) return;
-
-        List<Dzial> doUsuniecia = DzialService.getDzialy().stream()
-                .filter(d -> selectedList.contains(d.getNazwa_dzialu()))
-                .toList();
-
-        for (Dzial dzial : doUsuniecia) {
-            DzialService.removeDzial(dzial);
-        }
-
-        // Usuń z tabeli
-        TablePanel tp = centerPanel.getDzialPanel();
-        DefaultTableModel model = tp.getTableModel();
-
-        // Iteracja wstecz — bezpieczniejsze przy usuwaniu z modelu
-        for (int i = model.getRowCount() - 1; i >= 0; i--) {
-            String nazwaZTabeli = model.getValueAt(i, 1).toString();
-            if (selectedList.contains(nazwaZTabeli)) {
-                model.removeRow(i);
-            }
-        }
+        DeleteHelper.deleteMultiple(
+                parent,
+                dzialy,
+                d -> d.getId() + " – " + d.getNazwa_dzialu(),
+                DzialService::removeDzial,
+                deletedList -> {
+                    TablePanel tp = centerPanel.getDzialPanel();
+                    DefaultTableModel model = tp.getTableModel();
+                    for (int row = model.getRowCount() - 1; row >= 0; row--) {
+                        int idInRow = (Integer) model.getValueAt(row, 0);
+                        if (deletedList.stream().anyMatch(d -> d.getId() == idInRow)) {
+                            model.removeRow(row);
+                        }
+                    }
+                }
+        );
     }
 
 

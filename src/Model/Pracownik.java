@@ -42,7 +42,15 @@ public class Pracownik implements Serializable {
     public void setNazwisko(String nazwisko) {
         this.nazwisko = nazwisko;
     }
-
+    public void setDzial(Dzial dzial) {
+        this.dzial = dzial;
+    }
+    public void setDataUrodzenia(LocalDate data_urodzenia) {
+        this.dataUrodzenia = data_urodzenia;
+    }
+    public static void setCounter(int value) {
+        counter = value;
+    }
 
     @Override
     public String toString(){

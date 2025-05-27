@@ -20,11 +20,14 @@ public class AddEmployeeDialog extends JDialog {
     private JComboBox<String> departmentCombo;
     private boolean confirmed = false;
     private Pracownik createdPracownik;
+    private Pracownik pracownikDoEdycji;
 
-    public AddEmployeeDialog(Frame parent) {
-        super(parent, "Dodaj pracownika", true);
+    public AddEmployeeDialog(Frame parent, Pracownik pracownikDoEdycji) {
+        super(parent, pracownikDoEdycji == null ? "Dodaj pracownika" : "Edytuj Praocnwika", true);
+        this.pracownikDoEdycji = pracownikDoEdycji;
         setLayout(new BorderLayout());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
 
         // --- Panel pól ---
         JPanel fields = new JPanel(new GridLayout(4, 2, 5, 5));
@@ -57,6 +60,12 @@ public class AddEmployeeDialog extends JDialog {
 
         add(fields, BorderLayout.CENTER);
 
+        if (pracownikDoEdycji != null) {
+            firstNameField.setText(pracownikDoEdycji.getImie());
+            lastNameField.setText(pracownikDoEdycji.getNazwisko());
+            dateSpinner.setValue(Date.from(pracownikDoEdycji.getDataUrodzenia().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+            departmentCombo.setSelectedItem(pracownikDoEdycji.getDzial().getNazwa_dzialu());
+        }
         // --- Panel przycisków ---
         JPanel buttons = new JPanel();
         JButton ok = new JButton("OK");
@@ -89,8 +98,17 @@ public class AddEmployeeDialog extends JDialog {
                     .orElseThrow();
 
             // Tworzymy obiekt
-            createdPracownik = new Pracownik(imie, nazwisko, dataUrodzenia, dzial);
-            PracownikService.addPracownik(createdPracownik);
+            if (pracownikDoEdycji == null) {
+                createdPracownik = new Pracownik(imie, nazwisko, dataUrodzenia, dzial);
+                PracownikService.addPracownik(createdPracownik);
+            } else {
+                pracownikDoEdycji.setImie(imie);
+                pracownikDoEdycji.setNazwisko(nazwisko);
+                pracownikDoEdycji.setDataUrodzenia(dataUrodzenia);
+                pracownikDoEdycji.setDzial(dzial);
+                createdPracownik = pracownikDoEdycji;
+                PracownikService.updatePracownik(createdPracownik);
+            }
 
             confirmed = true;
             dispose();
@@ -100,7 +118,11 @@ public class AddEmployeeDialog extends JDialog {
     }
 
     public static Optional<Pracownik> showDialog(Frame parent) {
-        AddEmployeeDialog dlg = new AddEmployeeDialog(parent);
+        return showDialog(parent, null);
+    }
+
+    public static Optional<Pracownik> showDialog(Frame parent, Pracownik pracownikDoEdycji) {
+        AddEmployeeDialog dlg = new AddEmployeeDialog(parent, pracownikDoEdycji);
         dlg.setVisible(true);
         return dlg.confirmed
                 ? Optional.of(dlg.createdPracownik)
