@@ -1,10 +1,11 @@
 package Model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pracownik {
+public class Pracownik implements Serializable {
     private String imie;
     private String nazwisko;
     private LocalDate dataUrodzenia;
@@ -26,12 +27,22 @@ public class Pracownik {
     public String getNazwisko() {
         return nazwisko;
     }
+    public Dzial getDzial() {
+        return dzial;
+    }
+    public int getId() {
+        return id;
+    }
+    public LocalDate getDataUrodzenia() {
+        return dataUrodzenia;
+    }
     public void setImie(String imie) {
         this.imie = imie;
     }
     public void setNazwisko(String nazwisko) {
         this.nazwisko = nazwisko;
     }
+
 
     @Override
     public String toString(){

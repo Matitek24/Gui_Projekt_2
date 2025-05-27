@@ -34,6 +34,6 @@ public class DzialService {
                 .mapToInt(Dzial::getId)
                 .max()
                 .orElse(0);
-        Dzial.setCounter(maxId); // zakładamy, że dodasz setter w klasie Dzial
+        Dzial.setCounter(maxId);
     }
 }

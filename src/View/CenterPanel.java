@@ -2,7 +2,9 @@ package View;
 
 import Factory.TablePanel;
 import Factory.TablePanelFactory;
+import Model.Brygada;
 import Services.DzialService;
+import Services.PracownikService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +13,7 @@ public class CenterPanel extends JPanel {
 
     private CardLayout cardLayout;
     private TablePanel dzialPanel;
+    private TablePanel pracownikPanel;
 
     public CenterPanel() {
 
@@ -20,13 +23,8 @@ public class CenterPanel extends JPanel {
         dzialPanel = createDzialPanel();
         add(dzialPanel, "Dział pracowników");
 
-        add(TablePanelFactory.createTablePanel(
-                "Pracownicy",
-                new String[] {"Pracownicy Lista"},
-                new Object[][] {
-                        {"Item 2"}, {"Item 4"}, {"Item 3"},
-                }
-        ),"Pracownik");
+        pracownikPanel = createPracownikPanel();
+        add(pracownikPanel, "Pracownik");
 
         add(TablePanelFactory.createTablePanel(
                 "Uzytkownik",
@@ -77,13 +75,31 @@ public class CenterPanel extends JPanel {
                 })
                 .toArray(Object[][]::new);
 
-        // teraz dwie kolumny: "ID" i "Nazwa"
         return TablePanelFactory.createTablePanel(
                 "Działy",
                 new String[]{ "ID", "Nazwa" },
                 rowData
         );
     }
+
+    private TablePanel createPracownikPanel() {
+        Object[][] rowData = PracownikService.getPracownicy().stream()
+                .map(p -> new Object[]{
+                        p.getId(),
+                        p.getImie(),
+                        p.getNazwisko(),
+                        p.getDzial().getNazwa_dzialu(),
+                        p.getDataUrodzenia()
+                })
+                .toArray(Object[][]::new);
+
+        return TablePanelFactory.createTablePanel(
+                "Pracownicy",
+                new String[]{"ID", "Imię", "Nazwisko", "Dział", "Data urodzenia"},
+                rowData
+        );
+    }
+
 
     public void showPanel(String name) {
         cardLayout.show(this, name);
@@ -93,6 +109,10 @@ public class CenterPanel extends JPanel {
 
     public TablePanel getDzialPanel() {
         return dzialPanel;
+    }
+
+    public TablePanel getPracownikPanel() {
+        return pracownikPanel;
     }
 
 }

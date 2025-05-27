@@ -9,9 +9,10 @@ import java.util.List;
 
 public class LeftPanel extends JPanel {
     private CenterPanel centerPanel;
-    public LeftPanel(CenterPanel centerPanel) {
+    private TopPanel topPanel;
+    public LeftPanel(CenterPanel centerPanel, TopPanel topPanel) {
         this.centerPanel = centerPanel;
-
+        this.topPanel = topPanel;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -27,7 +28,10 @@ public class LeftPanel extends JPanel {
                 .map(this::createButton)
                 .forEach(button ->{
                     button.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    button.addActionListener(e -> centerPanel.showPanel(button.getText()));
+                    button.addActionListener(e -> {
+                        centerPanel.showPanel(button.getText());
+                        topPanel.setEntity(button.getText());
+                    });
                     add(Box.createVerticalStrut(5));
                     add(button);
                 });

@@ -13,8 +13,9 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         CenterPanel centerPanel = new CenterPanel();
-        LeftPanel leftPanel = new LeftPanel(centerPanel);
         TopPanel topPanel = new TopPanel(centerPanel);
+        LeftPanel leftPanel = new LeftPanel(centerPanel, topPanel);
+
 
         add(topPanel, BorderLayout.NORTH);
         add(leftPanel, BorderLayout.WEST);
