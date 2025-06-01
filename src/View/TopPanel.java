@@ -9,8 +9,23 @@ import java.util.List;
 import java.util.Map;
 
 public class TopPanel extends JPanel {
+
+    public enum ActionType {
+        NOWY("Nowy"),
+        EDYCJA("Edycja"),
+        USUN("Usuń"),
+        PRACOWNICY_DZIALU("Pracownicy Działu");
+        private final String name;
+
+        ActionType(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
     private final CenterPanel centerPanel;
-    private final Map<String, EntityActions> actionsMap;
     private final JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     public TopPanel(CenterPanel centerPanel) {
@@ -22,11 +37,36 @@ public class TopPanel extends JPanel {
 
         String currentEntity = "Dział pracowników";
         EntityActions actions = EntityActionsFactory.createActions(currentEntity, centerPanel, this);
-        actionsMap = Map.of(currentEntity, actions);
 
-        List<String> buttonNames = List.of("Nowy", "Edycja", "Usun");
+        setupEntityButtons(actions);
+
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightPanel.add(createWelcomeButton("Witaj AS"));
+
+        add(leftPanel, BorderLayout.WEST);
+        add(rightPanel, BorderLayout.EAST);
+    }
+
+    private void addActionListener(JButton btn, ActionType name, EntityActions actions) {
+        switch (name) {
+            case NOWY -> btn.addActionListener(e -> actions.onAdd());
+            case EDYCJA -> btn.addActionListener(e -> actions.onEdit());
+            case USUN -> btn.addActionListener(e -> actions.onDelete());
+            case PRACOWNICY_DZIALU-> btn.addActionListener(e ->
+                    JOptionPane.showMessageDialog(this, "Akcja dodatkowa dla działu"));
+        }
+    }
+
+    public void setEntity(String entityName) {
+        leftPanel.removeAll();
+        EntityActions actions = EntityActionsFactory.createActions(entityName, centerPanel, this);
+        setupEntityButtons(actions);
+    }
+
+    private void setupEntityButtons(EntityActions actions) {
+        List<ActionType> buttonNames = List.of(ActionType.NOWY, ActionType.EDYCJA, ActionType.USUN);
         buttonNames.forEach(name -> {
-            JButton btn = createButton(name);
+            JButton btn = createButton(name.getName());
             leftPanel.add(btn);
             addActionListener(btn, name, actions);
         });
@@ -36,45 +76,9 @@ public class TopPanel extends JPanel {
             styleExtraButton(extraBtn);
             leftPanel.add(extraBtn);
         }
-
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rightPanel.add(createWelcomeButton("Witaj AS"));
-
-        add(leftPanel, BorderLayout.WEST);
-        add(rightPanel, BorderLayout.EAST);
-    }
-
-    private void addActionListener(JButton btn, String name, EntityActions actions) {
-        switch (name) {
-            case "Nowy" -> btn.addActionListener(e -> actions.onAdd());
-            case "Edycja" -> btn.addActionListener(e -> actions.onEdit());
-            case "Usun" -> btn.addActionListener(e -> actions.onDelete());
-            case "Pracownicy Działu" -> btn.addActionListener(e ->
-                    JOptionPane.showMessageDialog(this, "Akcja dodatkowa dla działu"));
-        }
-    }
-
-    public void setEntity(String entityName) {
-        leftPanel.removeAll();
-
-        EntityActions actions = EntityActionsFactory.createActions(entityName, centerPanel, this);
-
-        List<String> buttonNames = List.of("Nowy", "Edycja", "Usun");
-        buttonNames.forEach(name -> {
-            JButton btn = createButton(name);
-            leftPanel.add(btn);
-            addActionListener(btn, name, actions);
-        });
-
-        for (JButton extraBtn : actions.getExtraButtons()) {
-            styleExtraButton(extraBtn);
-            leftPanel.add(extraBtn);
-        }
-
         revalidate();
         repaint();
     }
-
 
     private JButton createButton(String text) {
         JButton button = new JButton(text);
