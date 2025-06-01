@@ -1,6 +1,7 @@
 package Factory;
 
 import Interface.EntityActions;
+import Services.BrygadzistaActions;
 import Services.DzialActions;
 import Services.PracownikActions;
 import Services.UzytkownikActions;
@@ -14,6 +15,7 @@ public class EntityActionsFactory {
             case "Dział pracowników" -> new DzialActions(centerPanel, parent);
             case "Pracownik" -> new PracownikActions(centerPanel, parent);
             case "Użytkownik" -> new UzytkownikActions(centerPanel, parent);
+            case "Brygadzista" -> new BrygadzistaActions(centerPanel, parent);
             default -> null;
         };
     }

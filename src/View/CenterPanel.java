@@ -2,7 +2,8 @@ package View;
 
 import Factory.TablePanel;
 import Factory.TablePanelFactory;
-import Model.Brygada;
+import Model.Brygadzista;
+import Services.BrygadzistaService;
 import Services.DzialService;
 import Services.PracownikService;
 import Services.UzytkownikService;
@@ -16,6 +17,7 @@ public class CenterPanel extends JPanel {
     private TablePanel dzialPanel;
     private TablePanel pracownikPanel;
     private TablePanel uzytkownikPanel;
+    private TablePanel brygadzistaPanel;
 
     public CenterPanel() {
 
@@ -31,14 +33,9 @@ public class CenterPanel extends JPanel {
         uzytkownikPanel = createUzytkownikPanel();
         add(uzytkownikPanel, "Użytkownik");
 
+        brygadzistaPanel = createBrygadzistaPanel();
+        add(brygadzistaPanel, "Brygadzista");
 
-        add(TablePanelFactory.createTablePanel(
-                "Brygadzista",
-                new String[] {"Brygadzistów Lista"},
-                new Object[][] {
-                        {"Karol"},
-                }
-        ),"Brygadzista");
 
         add(TablePanelFactory.createTablePanel(
                 "Brygada",
@@ -114,6 +111,26 @@ public class CenterPanel extends JPanel {
         );
     }
 
+    private TablePanel createBrygadzistaPanel() {
+        Object[][] data = BrygadzistaService.getBrygadzisci().stream()
+                .map(b -> new Object[]{
+                        b.getBrygadzistaId(),
+                        b.getImie(),
+                        b.getNazwisko(),
+                        b.getDzial().getNazwa_dzialu(),
+                        b.getLogin(),
+                        b.getInicial(),
+                        b.getListaBrygad().size() + " brygad"
+                }).toArray(Object[][]::new);
+        return TablePanelFactory.createTablePanel(
+                "Brygadziści",
+                new String[]{"ID","Imię","Nazwisko","Dział","Login","Inicjały", "Liczba Brygad"},
+                data
+        );
+    }
+
+
+
 
     public void showPanel(String name) {
         cardLayout.show(this, name);
@@ -131,6 +148,10 @@ public class CenterPanel extends JPanel {
 
     public TablePanel getUzytkownikPanel() {
         return uzytkownikPanel;
+    }
+
+    public TablePanel getBrygadzistaPanel() {
+        return brygadzistaPanel;
     }
 
 }
