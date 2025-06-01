@@ -5,6 +5,7 @@ import Factory.TablePanelFactory;
 import Model.Brygada;
 import Services.DzialService;
 import Services.PracownikService;
+import Services.UzytkownikService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +15,7 @@ public class CenterPanel extends JPanel {
     private CardLayout cardLayout;
     private TablePanel dzialPanel;
     private TablePanel pracownikPanel;
+    private TablePanel uzytkownikPanel;
 
     public CenterPanel() {
 
@@ -26,13 +28,9 @@ public class CenterPanel extends JPanel {
         pracownikPanel = createPracownikPanel();
         add(pracownikPanel, "Pracownik");
 
-        add(TablePanelFactory.createTablePanel(
-                "Uzytkownik",
-                new String[] {"Uzytkownicy Lista"},
-                new Object[][] {
-                        {"Janek"},
-                }
-        ),"Użytkownik");
+        uzytkownikPanel = createUzytkownikPanel();
+        add(uzytkownikPanel, "Użytkownik");
+
 
         add(TablePanelFactory.createTablePanel(
                 "Brygadzista",
@@ -99,6 +97,22 @@ public class CenterPanel extends JPanel {
                 rowData
         );
     }
+    private TablePanel createUzytkownikPanel() {
+        Object[][] data = UzytkownikService.getUzytkownicy().stream()
+                .map(u -> new Object[]{
+                        u.getId(),
+                        u.getImie(),
+                        u.getNazwisko(),
+                        u.getDzial().getNazwa_dzialu(),
+                        u.getLogin(),
+                        u.getInicial()
+                }).toArray(Object[][]::new);
+        return TablePanelFactory.createTablePanel(
+                "Uzytkownicy",
+                new String[]{"ID","Imię","Nazwisko","Dział","Login","Inicjały"},
+                data
+        );
+    }
 
 
     public void showPanel(String name) {
@@ -113,6 +127,10 @@ public class CenterPanel extends JPanel {
 
     public TablePanel getPracownikPanel() {
         return pracownikPanel;
+    }
+
+    public TablePanel getUzytkownikPanel() {
+        return uzytkownikPanel;
     }
 
 }

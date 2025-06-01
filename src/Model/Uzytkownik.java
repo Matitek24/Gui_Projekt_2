@@ -24,9 +24,21 @@ public class Uzytkownik extends Pracownik{
         super.setImie(imie);
         setInicial();
     }
+    public void setLogin(String login){
+        this.login = login;
+    }
+    public void setHaslo(String haslo){
+        this.haslo = haslo;
+    }
     // gettery
     public String getLogin() {
         return login;
+    }
+    public String getInicial(){
+        return inicial;
+    }
+    public String getHaslo() {
+        return haslo;
     }
     public String toString() {
         return super.toString() + " Inicjalizacja " +inicial;

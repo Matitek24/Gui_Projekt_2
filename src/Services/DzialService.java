@@ -4,6 +4,7 @@ package Services;
 import Interface.Identifiable;
 import Model.Dzial;
 import Database.*;
+import Model.Pracownik;
 
 import java.util.List;
 
@@ -22,6 +23,16 @@ public class DzialService {
 
     public static List<Dzial> getDzialy() {
         return db.getItems();
+    }
+    public static void updateDzial(Dzial updated) {
+        List<Dzial> list = db.getItems();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getId() == updated.getId()) {
+                list.set(i, updated);
+                break;
+            }
+        }
+        db.saveItems(list);
     }
 
     public static List<String> getNazwyDzialow() {

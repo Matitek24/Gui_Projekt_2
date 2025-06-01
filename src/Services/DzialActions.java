@@ -71,42 +71,74 @@ public class DzialActions implements EntityActions {
 
     @Override
     public void onEdit() {
-        List<String> nazwy = DzialService.getNazwyDzialow();
-        if (nazwy.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Brak działów");
+        // Pobierz listę istniejących działów
+        List<Dzial> dzialy = DzialService.getDzialy();
+        if (dzialy.isEmpty()) {
+            JOptionPane.showMessageDialog(parent, "Brak działów do edycji.");
             return;
         }
 
-        String[] result = EditDialog.showDialog(parent, nazwy, "Wybierz dział", "Nowa nazwa", "Edytuj dział");
-        if (result != null) {
-            String selected = result[0];
-            String newName = result[1];
+        // Zbuduj tablicę wyboru w formacie "ID – Nazwa"
+        String[] options = dzialy.stream()
+                .map(d -> d.getId() + " – " + d.getNazwa_dzialu())
+                .toArray(String[]::new);
 
-            try {
-                Dzial oldDzial = DzialService.getDzialy().stream()
-                        .filter(d -> d.getNazwa_dzialu().equals(selected))
-                        .findFirst().orElse(null);
+        // Pytamy, którego działu chcemy edytować
+        String selected = (String) JOptionPane.showInputDialog(
+                parent,
+                "Wybierz dział do edycji:",
+                "Edytuj dział",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
+        if (selected == null) {
+            // anulowano wybór
+            return;
+        }
 
-                if (oldDzial != null) {
-                    oldDzial.rename(newName);
-                    DzialService.removeDzial(oldDzial);
-                    Dzial updated = Dzial.createDzial(newName);
-                    DzialService.addDzial(updated);
+        // Parsujemy ID z wybranej opcji
+        int id = Integer.parseInt(selected.split(" – ")[0]);
+        Dzial oldDzial = dzialy.stream()
+                .filter(d -> d.getId() == id)
+                .findFirst()
+                .orElse(null);
+        if (oldDzial == null) {
+            JOptionPane.showMessageDialog(parent, "Nie znaleziono działu o ID " + id);
+            return;
+        }
 
-                    TablePanel tp = centerPanel.getDzialPanel();
-                    DefaultTableModel model = tp.getTableModel();
-                    for (int i = 0; i < model.getRowCount(); i++) {
-                        if (selected.equals(model.getValueAt(i, 1))) {
-                            model.setValueAt(newName, i, 1);
-                            break;
-                        }
-                    }
+        // Używamy InputDialog tak samo jak w onAdd, ale z wstępną wartością
+        String newName = InputDialog.showDialog(
+                parent,
+                "Nowa nazwa działu (poprzednio: " + oldDzial.getNazwa_dzialu() + ")",
+                "Edytuj dział"
+        );
+        if (newName == null || newName.trim().isEmpty()) {
+            // anulowano lub puste
+            return;
+        }
+
+        try {
+            // zmiana w modelu
+            oldDzial.rename(newName.trim());
+            DzialService.updateDzial(oldDzial);
+
+            // aktualizacja tabeli
+            TablePanel tp = centerPanel.getDzialPanel();
+            DefaultTableModel model = tp.getTableModel();
+            for (int row = 0; row < model.getRowCount(); row++) {
+                if (((Integer) model.getValueAt(row, 0)) == id) {
+                    model.setValueAt(newName.trim(), row, 1);
+                    break;
                 }
-            } catch (NotUniqueNameException e) {
-                JOptionPane.showMessageDialog(parent, e.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
             }
+        } catch (NotUniqueNameException e) {
+            JOptionPane.showMessageDialog(parent, e.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
     public List<JButton> getExtraButtons() {
         JButton extraBtn = new JButton("Pracownicy Działów");
