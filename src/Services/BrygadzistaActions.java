@@ -41,7 +41,6 @@ public class BrygadzistaActions implements EntityActions {
                     b.getListaBrygad().size() + " brygad"
             });
         });
-
     }
 
     public void onDelete() {
@@ -68,19 +67,16 @@ public class BrygadzistaActions implements EntityActions {
 
     @Override
     public void onEdit() {
-        // 1) pobierz listę brygadzistów
         List<Brygadzista> list = BrygadzistaService.getBrygadzisci();
         if (list.isEmpty()) {
             JOptionPane.showMessageDialog(parent, "Brak brygadzistów do edycji.");
             return;
         }
 
-        // 2) utwórz tablicę opcji w formie "ID - login - imię"
         String[] opts = list.stream()
                 .map(b -> b.getBrygadzistaId() + " - " + b.getLogin() + " - " + b.getImie())
                 .toArray(String[]::new);
 
-        // 3) wyświetl listę do wyboru
         String sel = (String) JOptionPane.showInputDialog(
                 parent,
                 "Wybierz brygadzistę:",
@@ -91,22 +87,18 @@ public class BrygadzistaActions implements EntityActions {
                 opts[0]
         );
         if (sel == null) {
-            return; // użytkownik anulował wybór
-        }
-
-        // 4) rozdzielamy po " - " (zwróć uwagę, by w opts był dokładnie ten sam separator)
-        int id = Integer.parseInt(sel.split(" - ")[0]);
-        Optional<Brygadzista> opt = BrygadzistaService.getById(id);
-        if (opt.isEmpty()) {
-            // np. ktoś usunął brygadzistę międzyczasie
             return;
         }
 
-        // 5) wyświetl dialog edycji (przekazujemy frame okna jako owner)
+        int id = Integer.parseInt(sel.split(" - ")[0]);
+        Optional<Brygadzista> opt = BrygadzistaService.getById(id);
+        if (opt.isEmpty()) {
+            return;
+        }
+
         Frame frame = JOptionPane.getFrameForComponent(parent);
         Optional<Brygadzista> upd = AddBrygadzistaDialog.showDialog(frame, opt.get());
 
-        // 6) po zatwierdzeniu: zaktualizuj w tabeli brygadzistów
         upd.ifPresent(b -> {
             TablePanel tp = centerPanel.getBrygadzistaPanel(); // <<— Zwróć uwagę: brygadzistaPanel
             DefaultTableModel m = tp.getTableModel();

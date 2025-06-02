@@ -1,10 +1,7 @@
 package Factory;
 
 import Interface.EntityActions;
-import Services.BrygadzistaActions;
-import Services.DzialActions;
-import Services.PracownikActions;
-import Services.UzytkownikActions;
+import Services.*;
 import View.CenterPanel;
 
 import java.awt.*;
@@ -16,6 +13,7 @@ public class EntityActionsFactory {
             case "Pracownik" -> new PracownikActions(centerPanel, parent);
             case "Użytkownik" -> new UzytkownikActions(centerPanel, parent);
             case "Brygadzista" -> new BrygadzistaActions(centerPanel, parent);
+            case "Brygada" -> new BrygadaActions(centerPanel, parent);
             default -> null;
         };
     }

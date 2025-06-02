@@ -1,20 +1,24 @@
 package Services;
 
 import Database.Database;
+import Interface.AbstractCounterService;
+import Model.Brygada;
+import Model.Dzial;
 import Model.Pracownik;
 
 import java.util.List;
 import java.util.Optional;
 
-public class PracownikService {
+public class PracownikService extends AbstractCounterService<Pracownik> {
     private static final Database<Pracownik> db = new Database<>(Pracownik.class);
+    private static final PracownikService INSTANCE = new PracownikService();
 
     public static void addPracownik(Pracownik pracownik) {
         db.add(pracownik);
     }
     public static void removePracownik(Pracownik pracownik) {
         db.remove(pracownik);
-        initializeCounter();
+        INSTANCE.initializeCounter();
     }
     public static List<Pracownik> getPracownicy() {
         return db.getItems();
@@ -26,12 +30,17 @@ public class PracownikService {
                 .findFirst();
     }
 
-    public static void initializeCounter(){
-        int maxId = db.getItems().stream()
-                .mapToInt(Pracownik::getId)
-                .max()
-                .orElse(0);
-        Pracownik.setCounter(maxId);
+    protected List<Pracownik> getItems() {
+        return getPracownicy();
+    }
+    @Override
+    protected void setCounter(int value) {
+        Brygada.setCounter(value);
+    }
+
+    @Override
+    protected int extractId(Pracownik item) {
+        return item.getId();
     }
     public static void updatePracownik(Pracownik updated) {
         List<Pracownik> list = db.getItems();

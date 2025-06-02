@@ -7,6 +7,7 @@ import Services.BrygadzistaService;
 import Services.DzialService;
 import Services.PracownikService;
 import Services.UzytkownikService;
+import Services.BrygadaService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,7 @@ public class CenterPanel extends JPanel {
     private TablePanel pracownikPanel;
     private TablePanel uzytkownikPanel;
     private TablePanel brygadzistaPanel;
+    private TablePanel brygadaPanel;
 
     public CenterPanel() {
 
@@ -36,14 +38,8 @@ public class CenterPanel extends JPanel {
         brygadzistaPanel = createBrygadzistaPanel();
         add(brygadzistaPanel, "Brygadzista");
 
-
-        add(TablePanelFactory.createTablePanel(
-                "Brygada",
-                new String[] {"Brygadzistów Lista"},
-                new Object[][] {
-                        {"Karol"}, {"Robert"},
-                }
-        ),"Brygada");
+        brygadaPanel = createBrygadaPanel();
+        add(brygadaPanel, "Brygada");
 
         add(TablePanelFactory.createTablePanel(
                 "Zlecenie",
@@ -129,6 +125,24 @@ public class CenterPanel extends JPanel {
         );
     }
 
+    private TablePanel createBrygadaPanel() {
+        Object[][] data = BrygadaService.getBrygady().stream()
+                .map(br -> new Object[]{
+                        br.getId(),
+                        br.getName(),
+                        br.getBrygadzista().getImie() + " " +
+                                br.getBrygadzista().getNazwisko() +
+                                " (" + br.getBrygadzista().getBrygadzistaId() + ")",
+                        br.getListaPracownikow().size() + " prac"
+                })
+                .toArray(Object[][]::new);
+
+        return TablePanelFactory.createTablePanel(
+                "Brygady",
+                new String[]{"Id","Nazwa brygady", "Brygadzista", "Liczba pracowników"},
+                data
+        );
+    };
 
 
 
@@ -152,6 +166,9 @@ public class CenterPanel extends JPanel {
 
     public TablePanel getBrygadzistaPanel() {
         return brygadzistaPanel;
+    }
+    public TablePanel getBrygadaPanel() {
+        return brygadaPanel;
     }
 
 }

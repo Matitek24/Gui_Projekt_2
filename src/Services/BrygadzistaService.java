@@ -1,6 +1,7 @@
 package Services;
 
 import Database.Database;
+import Interface.AbstractCounterService;
 import Model.Brygada;
 import Model.Brygadzista;
 import Model.Uzytkownik;
@@ -8,8 +9,9 @@ import Model.Uzytkownik;
 import java.util.List;
 import java.util.Optional;
 
-public class BrygadzistaService {
+public class BrygadzistaService extends AbstractCounterService<Brygadzista> {
     private static final Database<Brygadzista> db = new Database<>(Brygadzista.class);
+    private static final BrygadzistaService INSTANCE = new BrygadzistaService();
 
     public static List<Brygadzista> getBrygadzisci() {
         return db.getItems();
@@ -21,7 +23,7 @@ public class BrygadzistaService {
 
     public static void removeBrygadzista(Brygadzista b) {
         db.remove(b);
-        initializeBrygadzistaCounter();
+        INSTANCE.initializeCounter();
     }
 
     public static Optional<Brygadzista> getById(int id) {
@@ -44,11 +46,17 @@ public class BrygadzistaService {
         updateBrygadzista(bre);
     }
 
-    public static void initializeBrygadzistaCounter() {
-        int max = getBrygadzisci().stream()
-                .mapToInt(Brygadzista::getBrygadzistaId)
-                .max()
-                .orElse(0);
-        Brygadzista.setCounter(max);
+    @Override
+    protected List<Brygadzista> getItems() {
+        return getBrygadzisci();
+    }
+    @Override
+    protected void setCounter(int value) {
+        Brygada.setCounter(value);
+    }
+
+    @Override
+    protected int extractId(Brygadzista item) {
+        return item.getId();
     }
 }
