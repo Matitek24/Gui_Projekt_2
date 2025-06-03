@@ -35,7 +35,7 @@ public class PracownikService extends AbstractCounterService<Pracownik> {
     }
     @Override
     protected void setCounter(int value) {
-        Brygada.setCounter(value);
+        Pracownik.setCounter(value);
     }
 
     @Override

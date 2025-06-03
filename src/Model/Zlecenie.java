@@ -1,11 +1,12 @@
 package Model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class Zlecenie {
+public class Zlecenie implements Serializable {
 
-    private enum stan_zlecenia{
+    public enum stan_zlecenia{
         PLANOWANE, NIEPLANOWANE, REALIZOWANE, ZAKOŃCZONE
     };
     private static HashMap<Integer, Zlecenie> wszystkieZlecenia = new HashMap<>();
@@ -13,10 +14,10 @@ public class Zlecenie {
     private final int id;
     private ArrayList<Praca> prace;
     private Brygada brygada;
-    private final LocalDateTime dataUtworzenia;
+    private LocalDateTime dataUtworzenia;
     private LocalDateTime dataRozpoczecia;
     private LocalDateTime dataZakonczenia;
-    private stan_zlecenia stan;
+    public stan_zlecenia stan;
 
 
     public Zlecenie(boolean planowane) {
@@ -61,6 +62,42 @@ public class Zlecenie {
             return wszystkieZlecenia.get(id);
         }
     }
+
+    public static void setCounter(int ct) {
+        counter = ct;
+    }
+
+    public int getId() {
+        return id;
+    }
+    public ArrayList<Praca> getPraca() {
+        return prace;
+    }
+    public Brygada getBrygada() {
+        return brygada;
+    }
+    public LocalDateTime getDataUtworzenia() {
+        return dataUtworzenia;
+    }
+    public LocalDateTime getDataRozpoczecia() {
+        return dataRozpoczecia;
+    }
+    public LocalDateTime getDataZakonczenia() {
+        return dataZakonczenia;
+    }
+    public void setDataUtworzenia(LocalDateTime dataUtworzeni) {
+        dataUtworzenia = dataUtworzeni;
+    }
+    public void setDataRozpoczecia(LocalDateTime dataRozpoczeci) {
+        dataRozpoczecia = dataRozpoczeci;
+    }
+    public void setDataZakonczenia(LocalDateTime dataZakonczeni) {
+        dataZakonczenia = dataZakonczeni;
+    }
+    public void setStan(stan_zlecenia stan) {
+        this.stan = stan;
+    }
+
 
     @Override
     public String toString() {

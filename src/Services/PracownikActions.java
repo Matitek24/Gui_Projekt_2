@@ -1,5 +1,6 @@
 package Services;
 
+import Factory.DeleteUtil;
 import Interface.EntityActions;
 import View.CenterPanel;
 import Dialog.AddEmployeeDialog;
@@ -52,30 +53,16 @@ public class PracownikActions implements EntityActions {
     }
     @Override
     public void onDelete() {
-        List<Pracownik> pracownicy = PracownikService.getPracownicy();
-        if (pracownicy.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Brak pracowników");
-            return;
-        }
-
-        DeleteHelper.deleteMultiple(
+        DeleteUtil.deleteFromTable(
                 parent,
-                pracownicy,
+                centerPanel.getPracownikPanel(),
+                PracownikService.getPracownicy(),
                 p -> p.getId() + " – " + p.getImie() + " " + p.getNazwisko(),
                 PracownikService::removePracownik,
-                deletedList -> {
-                    TablePanel tp = centerPanel.getPracownikPanel();
-                    DefaultTableModel model = tp.getTableModel();
-
-                    for (int row = model.getRowCount() - 1; row >= 0; row--) {
-                        int idInRow = (Integer) model.getValueAt(row, 0);
-                        if (deletedList.stream().anyMatch(p -> p.getId() == idInRow)) {
-                            model.removeRow(row);
-                        }
-                    }
-                }
+                Pracownik::getId
         );
     }
+
 
     @Override
     public void onEdit() {

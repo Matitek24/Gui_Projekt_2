@@ -1,38 +1,75 @@
 package Model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class Praca extends Thread {
-    public enum rodzaj_pracy{
+public class Praca implements Serializable {
+    public enum rodzaj_pracy {
         Ogólna, Montaz, Demontaz, Wymiana
     }
+
     private rodzaj_pracy rodzajPracy;
     private int czasPracy;
     private boolean czyZrealizowane;
     private String opis;
-    private static int counter = 0;
+    private static final AtomicInteger COUNTER = new AtomicInteger(0);
     private final int id;
+
     public Praca(rodzaj_pracy rodzaj, int czas, String opis) {
-        synchronized (Praca.class) {
-            id = ++counter;
-        }
+        this.id = COUNTER.incrementAndGet();
         this.rodzajPracy = rodzaj;
         this.czasPracy = czas;
         this.opis = opis;
         this.czyZrealizowane = false;
-        setName(opis);
     }
-    public Praca(rodzaj_pracy rodzaj, int czas, String opis, ArrayList<Praca> prace) {
+
+    public Praca(rodzaj_pracy rodzaj, int czas, String opis, java.util.List<Praca> prace) {
         this(rodzaj, czas, opis);
     }
 
-    public boolean isCzy_zrealizowane() {
+    public int getId() {
+        return id;
+    }
+
+    public rodzaj_pracy getRodzajPracy() {
+        return rodzajPracy;
+    }
+
+    public void setRodzajPracy(rodzaj_pracy rodzajPracy) {
+        this.rodzajPracy = rodzajPracy;
+    }
+
+    public int getCzasPracy() {
+        return czasPracy;
+    }
+
+    public void setCzasPracy(int czasPracy) {
+        this.czasPracy = czasPracy;
+    }
+
+    public boolean isCzyZrealizowane() {
         return czyZrealizowane;
     }
+
+    public void setCzyZrealizowane(boolean czyZrealizowane) {
+        this.czyZrealizowane = czyZrealizowane;
+    }
+
+    public String getOpis() {
+        return opis;
+    }
+
+    public void setOpis(String opis) {
+        this.opis = opis;
+    }
+
 
     @Override
     public String toString() {
         return id + " - " + opis + " (" + rodzajPracy + ")";
+    }
+
+    public static void setCounter(int value) {
+        COUNTER.set(value);
     }
 }

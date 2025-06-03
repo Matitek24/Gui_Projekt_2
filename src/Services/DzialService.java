@@ -49,7 +49,7 @@ public class DzialService extends AbstractCounterService<Dzial> {
     }
     @Override
     protected void setCounter(int value) {
-        Brygada.setCounter(value);
+        Dzial.setCounter(value);
     }
 
     @Override

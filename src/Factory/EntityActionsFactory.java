@@ -14,6 +14,8 @@ public class EntityActionsFactory {
             case "Użytkownik" -> new UzytkownikActions(centerPanel, parent);
             case "Brygadzista" -> new BrygadzistaActions(centerPanel, parent);
             case "Brygada" -> new BrygadaActions(centerPanel, parent);
+            case "Zlecenie" -> new ZlecenieActions(centerPanel, parent);
+            case "Praca" -> new PracaActions(centerPanel, parent);
             default -> null;
         };
     }

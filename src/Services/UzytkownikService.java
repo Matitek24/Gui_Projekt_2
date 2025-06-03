@@ -40,7 +40,7 @@ public class UzytkownikService extends AbstractCounterService<Uzytkownik> {
     }
     @Override
     protected void setCounter(int value) {
-        Brygada.setCounter(value);
+        Uzytkownik.setCounter(value);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package Services;
 
+import Factory.DeleteUtil;
 import Interface.EntityActions;
 import View.CenterPanel;
 import Dialog.AddUserDialog;
@@ -42,28 +43,16 @@ public class UzytkownikActions implements EntityActions {
 
     @Override
     public void onDelete() {
-        List<Uzytkownik> list = UzytkownikService.getUzytkownicy();
-        if (list.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Brak użytkowników");
-            return;
-        }
-        DeleteHelper.deleteMultiple(
+        DeleteUtil.deleteFromTable(
                 parent,
-                list,
-                u -> u.getId()+" – "+u.getLogin(),
+                centerPanel.getUzytkownikPanel(),
+                UzytkownikService.getUzytkownicy(),
+                u -> u.getId() + " – " + u.getLogin(),
                 UzytkownikService::removeUzytkownik,
-                deleted -> {
-                    TablePanel tp = centerPanel.getUzytkownikPanel();
-                    DefaultTableModel m = tp.getTableModel();
-                    for (int row=m.getRowCount()-1; row>=0; row--) {
-                        int id = (Integer)m.getValueAt(row,0);
-                        if (deleted.stream().anyMatch(u->u.getId()==id)) {
-                            m.removeRow(row);
-                        }
-                    }
-                }
+                Uzytkownik::getId
         );
     }
+
 
     @Override
     public void onEdit() {

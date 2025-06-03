@@ -1,6 +1,7 @@
 package Services;
 
 import Factory.DeleteHelper;
+import Factory.DeleteUtil;
 import Factory.TablePanel;
 import Interface.EntityActions;
 import Model.Brygadzista;
@@ -44,23 +45,13 @@ public class BrygadzistaActions implements EntityActions {
     }
 
     public void onDelete() {
-        List<Brygadzista> brygadzisci = BrygadzistaService.getBrygadzisci();
-
-        DeleteHelper.deleteMultiple(
+        DeleteUtil.deleteFromTable(
                 parent,
-                brygadzisci,
-                b -> b.getBrygadzistaId() + " - " + b.getLogin(),
+                centerPanel.getBrygadzistaPanel(),
+                BrygadzistaService.getBrygadzisci(),
+                b -> b.getBrygadzistaId() + " – " + b.getLogin(),
                 BrygadzistaService::removeBrygadzista,
-                deleted -> {
-                    TablePanel tp = centerPanel.getBrygadzistaPanel();
-                    DefaultTableModel m = tp.getTableModel();
-                    for (int row = m.getRowCount() - 1; row >= 0; row--) {
-                        long id = ((Number) m.getValueAt(row, 0)).longValue();
-                        if (deleted.stream().anyMatch(b -> b.getBrygadzistaId() == id)) {
-                            m.removeRow(row);
-                        }
-                    }
-                }
+                Brygadzista::getBrygadzistaId
         );
     }
 

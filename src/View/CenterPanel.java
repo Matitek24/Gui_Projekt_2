@@ -3,11 +3,7 @@ package View;
 import Factory.TablePanel;
 import Factory.TablePanelFactory;
 import Model.Brygadzista;
-import Services.BrygadzistaService;
-import Services.DzialService;
-import Services.PracownikService;
-import Services.UzytkownikService;
-import Services.BrygadaService;
+import Services.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +16,8 @@ public class CenterPanel extends JPanel {
     private TablePanel uzytkownikPanel;
     private TablePanel brygadzistaPanel;
     private TablePanel brygadaPanel;
+    private TablePanel zleceniePanel;
+    private TablePanel PracaPanel;
 
     public CenterPanel() {
 
@@ -41,21 +39,12 @@ public class CenterPanel extends JPanel {
         brygadaPanel = createBrygadaPanel();
         add(brygadaPanel, "Brygada");
 
-        add(TablePanelFactory.createTablePanel(
-                "Zlecenie",
-                new String[] {"Brygadzistów Lista"},
-                new Object[][] {
-                        {"Anna"}, {"Michal"},
-                }
-        ),"Zlecenie");
+        zleceniePanel = createZleceniePanel();
+        add(zleceniePanel, "Zlecenie");
 
-        add(TablePanelFactory.createTablePanel(
-                "Praca",
-                new String[] {"Brygadzistów Lista"},
-                new Object[][] {
-                        {"Michalina"}, {"Marcelina"},
-                }
-        ),"Praca");
+        PracaPanel = createPracaPanel();
+        add(PracaPanel, "Praca");
+
     }
 
     private TablePanel createDzialPanel() {
@@ -144,6 +133,44 @@ public class CenterPanel extends JPanel {
         );
     };
 
+    private TablePanel createZleceniePanel() {
+        Object[][] data = ZlecenieService.getZlecenia().stream()
+                .map(z -> new Object[] {
+                        z.getId(),
+                        z.getStan_zlecenia(),
+                        z.getBrygada() != null ? z.getBrygada().getName() : "Brak",
+                        z.getPraca().size(),
+                        z.getDataUtworzenia().toString(),
+                        z.getDataRozpoczecia() != null ? z.getDataRozpoczecia().toString() : "",
+                        z.getDataZakonczenia() != null ? z.getDataZakonczenia().toString() : ""
+                })
+                .toArray(Object[][]::new);
+
+        return TablePanelFactory.createTablePanel(
+                "Zlecenia",
+                new String[] { "ID", "Stan", "Brygada", "Liczba prac", "Data utworzenia", "Data rozpoczęcia", "Data zakończenia" },
+                data
+        );
+    }
+
+    private TablePanel createPracaPanel() {
+        Object[][] data = PracaService.getPrace().stream()
+                .map(p -> new Object[]{
+                        p.getId(),
+                        p.getOpis(),
+                        p.getRodzajPracy(),
+                        p.getCzasPracy(),
+                        p.isCzyZrealizowane()
+                })
+                .toArray(Object[][]::new);
+
+        return TablePanelFactory.createTablePanel(
+                "Prace",
+                new String[]{"ID", "Opis", "Rodzaj", "Czas (min)", "Zrealizowane"},
+                data
+        );
+    }
+
 
 
     public void showPanel(String name) {
@@ -151,24 +178,25 @@ public class CenterPanel extends JPanel {
         revalidate();
         repaint();
     }
-
     public TablePanel getDzialPanel() {
         return dzialPanel;
     }
-
     public TablePanel getPracownikPanel() {
         return pracownikPanel;
     }
-
     public TablePanel getUzytkownikPanel() {
         return uzytkownikPanel;
     }
-
     public TablePanel getBrygadzistaPanel() {
         return brygadzistaPanel;
     }
     public TablePanel getBrygadaPanel() {
         return brygadaPanel;
     }
-
+    public TablePanel getZleceniePanel() {
+        return zleceniePanel;
+    }
+    public TablePanel getPracaPanel() {
+        return PracaPanel;
+    }
 }

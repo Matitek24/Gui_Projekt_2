@@ -5,6 +5,7 @@ import Dialog.EditDialog;
 import Dialog.InputDialog;
 import Exception.NotUniqueNameException;
 import Factory.DeleteHelper;
+import Factory.DeleteUtil;
 import Factory.TablePanel;
 import Interface.EntityActions;
 import Model.Dzial;
@@ -44,27 +45,13 @@ public class DzialActions implements EntityActions {
 
     @Override
     public void onDelete() {
-        List<Dzial> dzialy = DzialService.getDzialy();
-        if (dzialy.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Brak działów");
-            return;
-        }
-
-        DeleteHelper.deleteMultiple(
+        DeleteUtil.deleteFromTable(
                 parent,
-                dzialy,
+                centerPanel.getDzialPanel(),
+                DzialService.getDzialy(),
                 d -> d.getId() + " – " + d.getNazwa_dzialu(),
                 DzialService::removeDzial,
-                deletedList -> {
-                    TablePanel tp = centerPanel.getDzialPanel();
-                    DefaultTableModel model = tp.getTableModel();
-                    for (int row = model.getRowCount() - 1; row >= 0; row--) {
-                        int idInRow = (Integer) model.getValueAt(row, 0);
-                        if (deletedList.stream().anyMatch(d -> d.getId() == idInRow)) {
-                            model.removeRow(row);
-                        }
-                    }
-                }
+                Dzial::getId
         );
     }
 

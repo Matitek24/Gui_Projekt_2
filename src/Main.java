@@ -1,8 +1,5 @@
 import Interface.AbstractCounterService;
-import Services.BrygadaService;
-import Services.BrygadzistaService;
-import Services.DzialService;
-import Services.PracownikService;
+import Services.*;
 import View.MainFrame;
 import java.util.List;
 
@@ -14,7 +11,9 @@ public class Main {
                 new DzialService(),
                 new PracownikService(),
                 new BrygadzistaService(),
-                new BrygadaService()
+                new BrygadaService(),
+                new ZlecenieService(),
+                new PracaService()
         );
 
         services.forEach(AbstractCounterService::initializeCounter);

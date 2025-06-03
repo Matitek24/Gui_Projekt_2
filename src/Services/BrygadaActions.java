@@ -1,6 +1,7 @@
 package Services;
 
 import Factory.DeleteHelper;
+import Factory.DeleteUtil;
 import Factory.TablePanel;
 import Interface.EntityActions;
 import Model.Brygada;
@@ -37,26 +38,18 @@ public class BrygadaActions implements EntityActions {
             });
         });
     }
-    public void onDelete(){
-        List<Brygada> brygady = BrygadaService.getBrygady();
-
-        DeleteHelper.deleteMultiple(
+    public void onDelete() {
+        DeleteUtil.deleteFromTable(
                 parent,
-                brygady,
-                b -> b.getId() + " - " + b.getName(),
+                centerPanel.getBrygadaPanel(),
+                BrygadaService.getBrygady(),
+                b -> b.getId() + " – " + b.getName(),
                 BrygadaService::removeBrygada,
-                deletedList -> {
-                    TablePanel tp = centerPanel.getBrygadaPanel();
-                    DefaultTableModel m = tp.getTableModel();
-                    for (int row = m.getRowCount() - 1; row >= 0; row--) {
-                        long rowId = ((Number) m.getValueAt(row, 0)).longValue();
-                        if (deletedList.stream().anyMatch(b -> b.getId() == rowId)) {
-                            m.removeRow(row);
-                        }
-                    }
-                }
+                Brygada::getId
         );
     }
+
+
     public void onEdit(){
         List<Brygada> list = BrygadaService.getBrygady();
         if (list.isEmpty()) {

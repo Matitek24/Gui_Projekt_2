@@ -52,7 +52,7 @@ public class BrygadzistaService extends AbstractCounterService<Brygadzista> {
     }
     @Override
     protected void setCounter(int value) {
-        Brygada.setCounter(value);
+        Brygadzista.setCounter(value);
     }
 
     @Override
