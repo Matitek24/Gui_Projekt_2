@@ -10,9 +10,11 @@ import java.util.List;
 public class LeftPanel extends JPanel {
     private CenterPanel centerPanel;
     private TopPanel topPanel;
-    public LeftPanel(CenterPanel centerPanel, TopPanel topPanel) {
+    private MainFrame mainFrame;
+    public LeftPanel(CenterPanel centerPanel, TopPanel topPanel, MainFrame mainFrame) {
         this.centerPanel = centerPanel;
         this.topPanel = topPanel;
+        this.mainFrame = mainFrame;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -42,6 +44,8 @@ public class LeftPanel extends JPanel {
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JButton logoutButton = createButton("Wyloguj się");
         logoutButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logoutButton.addActionListener(e -> handleLogout());
+        logoutButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         bottomPanel.add(logoutButton, BorderLayout.SOUTH);
 
         add(bottomPanel, BorderLayout.SOUTH);
@@ -54,5 +58,18 @@ public class LeftPanel extends JPanel {
         button.setMaximumSize(new Dimension(Integer.MAX_VALUE, button.getPreferredSize().height));
         return button;
 
+    }
+    private void handleLogout() {
+        int choice = JOptionPane.showConfirmDialog(
+                mainFrame,
+                "Czy na pewno chcesz się wylogować?",
+                "Potwierdzenie wylogowania",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (choice == JOptionPane.YES_OPTION) {
+            mainFrame.logout();
+        }
     }
 }

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import Exception.*;
 
 public class AddZlecenieDialog extends JDialog {
     private JComboBox<Zlecenie.stan_zlecenia> stanCombo;
@@ -43,8 +44,8 @@ public class AddZlecenieDialog extends JDialog {
         List<Brygada> brygady = BrygadaService.getBrygady();
         if (brygady.isEmpty()) {
             JOptionPane.showMessageDialog(parent, "Brak brygad. Dodaj brygadę najpierw!");
-            dispose();
-            return;
+            throw new NotGetClassException("Brak Brygad. Dodaj Brygade");
+
         }
         brygadaCombo = new JComboBox<>(
                 brygady.stream()

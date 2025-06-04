@@ -6,6 +6,7 @@ import Model.Brygada;
 import Model.Brygadzista;
 import Services.BrygadaService;
 import Services.BrygadzistaService;
+import Exception.NotGetClassException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,10 +21,12 @@ public class AddBrygadaDialog extends JDialog {
     private Brygada toEdit;
 
     public AddBrygadaDialog(Frame parent, Brygada toEdit) {
+
         super(parent, toEdit == null ? "Dodaj brygadę" : "Edytuj brygadę", true);
         this.toEdit = toEdit;
         setLayout(new BorderLayout());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
 
         JPanel fields = new JPanel(new GridLayout(2, 2, 5, 5));
         fields.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -38,9 +41,9 @@ public class AddBrygadaDialog extends JDialog {
         List<Brygadzista> brygadzisci = BrygadzistaService.getBrygadzisci();
         if (brygadzisci.isEmpty()) {
             JOptionPane.showMessageDialog(parent, "Brak brygadzistów. Dodaj brygadzistę najpierw!");
-            dispose();
-            return;
+            throw new NotGetClassException("Brak brygadzistów. Dodaj brygadzistę najpierw!");
         }
+
         brygadzistaCombo = new JComboBox<>(
                 brygadzisci.stream()
                         .map(b -> b.getBrygadzistaId() + " - " + b.getLogin())
@@ -53,8 +56,18 @@ public class AddBrygadaDialog extends JDialog {
         // Jeśli edytujemy, wstępnie wypełnij pola
         if (toEdit != null) {
             nameField.setText(toEdit.getName());
-            String sel = toEdit.getBrygadzista().getBrygadzistaId() + " - " + toEdit.getBrygadzista().getLogin();
-            brygadzistaCombo.setSelectedItem(sel);
+
+            Brygadzista b = toEdit.getBrygadzista();
+            if (b != null) {
+                String sel = b.getBrygadzistaId() + " - " + b.getLogin();
+                brygadzistaCombo.setSelectedItem(sel);
+            } else {
+                // Uwaga dla użytkownika
+                JOptionPane.showMessageDialog(this,
+                        "Uwaga: ta brygada nie ma już przypisanego brygadzisty (został usunięty).",
+                        "Informacja",
+                        JOptionPane.WARNING_MESSAGE);
+            }
         }
 
         JPanel btns = new JPanel();
@@ -77,6 +90,7 @@ public class AddBrygadaDialog extends JDialog {
             if (nazwa.isEmpty()) {
                 throw new IllegalArgumentException("Nazwa brygady nie może być pusta.");
             }
+
 
             String sel = (String) brygadzistaCombo.getSelectedItem();
             long brygadzistaId = Long.parseLong(sel.split(" - ")[0]);

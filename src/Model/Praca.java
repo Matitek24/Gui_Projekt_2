@@ -12,11 +12,11 @@ public class Praca implements Serializable {
     private int czasPracy;
     private boolean czyZrealizowane;
     private String opis;
-    private static final AtomicInteger COUNTER = new AtomicInteger(0);
+    private static int COUNTER = 0;
     private final int id;
 
     public Praca(rodzaj_pracy rodzaj, int czas, String opis) {
-        this.id = COUNTER.incrementAndGet();
+        this.id = ++COUNTER;
         this.rodzajPracy = rodzaj;
         this.czasPracy = czas;
         this.opis = opis;
@@ -70,6 +70,7 @@ public class Praca implements Serializable {
     }
 
     public static void setCounter(int value) {
-        COUNTER.set(value);
+        COUNTER = value;
     }
 }
+

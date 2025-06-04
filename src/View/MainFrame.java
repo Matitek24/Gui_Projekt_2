@@ -1,11 +1,18 @@
 package View;
 
+import Model.Uzytkownik;
+
 import javax.swing.*;
 import java.awt.*;
+import Dialog.LoginDialog;
 
 public class MainFrame extends JFrame {
+    private final Uzytkownik user;
     
-    public MainFrame() {
+    public MainFrame(Uzytkownik user) {
+        super("Aplikacja – zalogowany: " + user.getLogin());
+        this.user = user;
+
         setTitle("S33334 Mateusz Skrzypek");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 600);
@@ -13,13 +20,26 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         CenterPanel centerPanel = new CenterPanel();
-        TopPanel topPanel = new TopPanel(centerPanel);
-        LeftPanel leftPanel = new LeftPanel(centerPanel, topPanel);
+        TopPanel topPanel = new TopPanel(centerPanel, user);
+        LeftPanel leftPanel = new LeftPanel(centerPanel, topPanel, this);
 
 
         add(topPanel, BorderLayout.NORTH);
         add(leftPanel, BorderLayout.WEST);
         add(centerPanel, BorderLayout.CENTER);
 
+    }
+
+    public void logout() {
+        dispose();
+        LoginDialog loginDialog = new LoginDialog(null);
+        loginDialog.setVisible(true);
+
+        Uzytkownik newUser = loginDialog.getLoggedInUser();
+        if (newUser != null) {
+            new MainFrame(newUser).setVisible(true);
+        } else {
+            System.exit(0);
+        }
     }
 }

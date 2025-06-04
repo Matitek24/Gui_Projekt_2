@@ -68,7 +68,7 @@ public class CenterPanel extends JPanel {
                         p.getId(),
                         p.getImie(),
                         p.getNazwisko(),
-                        p.getDzial().getNazwa_dzialu(),
+                        p.getDzial() != null ? p.getDzial().getNazwa_dzialu() : "Brak działu",
                         p.getDataUrodzenia()
                 })
                 .toArray(Object[][]::new);
@@ -85,7 +85,7 @@ public class CenterPanel extends JPanel {
                         u.getId(),
                         u.getImie(),
                         u.getNazwisko(),
-                        u.getDzial().getNazwa_dzialu(),
+                        u.getDzial() != null ? u.getDzial().getNazwa_dzialu() : "Brak działu",
                         u.getLogin(),
                         u.getInicial()
                 }).toArray(Object[][]::new);
@@ -102,7 +102,7 @@ public class CenterPanel extends JPanel {
                         b.getBrygadzistaId(),
                         b.getImie(),
                         b.getNazwisko(),
-                        b.getDzial().getNazwa_dzialu(),
+                        b.getDzial() != null ? b.getDzial().getNazwa_dzialu() : "Brak działu",
                         b.getLogin(),
                         b.getInicial(),
                         b.getListaBrygad().size() + " brygad"
@@ -119,9 +119,11 @@ public class CenterPanel extends JPanel {
                 .map(br -> new Object[]{
                         br.getId(),
                         br.getName(),
-                        br.getBrygadzista().getImie() + " " +
+                        (br.getBrygadzista() != null
+                                ? br.getBrygadzista().getImie() + " " +
                                 br.getBrygadzista().getNazwisko() +
-                                " (" + br.getBrygadzista().getBrygadzistaId() + ")",
+                                " (" + br.getBrygadzista().getBrygadzistaId() + ")"
+                                : "Brak brygadzisty"),
                         br.getListaPracownikow().size() + " prac"
                 })
                 .toArray(Object[][]::new);
@@ -199,4 +201,28 @@ public class CenterPanel extends JPanel {
     public TablePanel getPracaPanel() {
         return PracaPanel;
     }
+
+    public void refreshPanels() {
+        removeAll();
+
+        dzialPanel = createDzialPanel();
+        pracownikPanel = createPracownikPanel();
+        uzytkownikPanel = createUzytkownikPanel();
+        brygadzistaPanel = createBrygadzistaPanel();
+        brygadaPanel = createBrygadaPanel();
+        zleceniePanel = createZleceniePanel();
+        PracaPanel = createPracaPanel();
+
+        add(dzialPanel, "Dział pracowników");
+        add(pracownikPanel, "Pracownik");
+        add(uzytkownikPanel, "Użytkownik");
+        add(brygadzistaPanel, "Brygadzista");
+        add(brygadaPanel, "Brygada");
+        add(zleceniePanel, "Zlecenie");
+        add(PracaPanel, "Praca");
+
+        revalidate();
+        repaint();
+    }
+
 }

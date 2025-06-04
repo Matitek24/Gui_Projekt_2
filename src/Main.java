@@ -1,4 +1,6 @@
+import Dialog.LoginDialog;
 import Interface.AbstractCounterService;
+import Model.Uzytkownik;
 import Services.*;
 import View.MainFrame;
 import java.util.List;
@@ -19,7 +21,13 @@ public class Main {
         services.forEach(AbstractCounterService::initializeCounter);
 
         SwingUtilities.invokeLater(() -> {
-            new MainFrame().setVisible(true);
+            LoginDialog loginDialog = new LoginDialog(null);
+            loginDialog.setVisible(true);
+            Uzytkownik user = loginDialog.getLoggedInUser();
+            if(user == null) {
+                System.exit(0);
+            }
+            new MainFrame(user).setVisible(true);
         });
     }
 }

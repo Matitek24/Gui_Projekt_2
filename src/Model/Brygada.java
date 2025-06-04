@@ -1,11 +1,12 @@
 package Model;
 
 import Exception.NotAcceptClassException;
+import Interface.IBrygadowy;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Brygada implements Serializable {
+public class Brygada implements Serializable, IBrygadowy {
     public static int counter = 0;
     private final int id;
     private String name;
@@ -18,13 +19,17 @@ public class Brygada implements Serializable {
         brygadzista.addBrygade(this);
     }
     public void changeBrygadzista(Brygadzista newbrygadzista) {
-        if(newbrygadzista == this.brygadzista) {
+        if (newbrygadzista == this.brygadzista) {
             return;
         }
         Brygadzista oldBrygadzista = this.brygadzista;
 
-        oldBrygadzista.removeBrygade(this);
-        newbrygadzista.addBrygade(this);
+        if (oldBrygadzista != null) {
+            oldBrygadzista.removeBrygade(this);
+        }
+        if (newbrygadzista != null) {
+            newbrygadzista.addBrygade(this);
+        }
         this.brygadzista = newbrygadzista;
     }
     public void appendPracownik(Pracownik pracownik) throws NotAcceptClassException {
@@ -60,6 +65,9 @@ public class Brygada implements Serializable {
     }
     public ArrayList<Pracownik> getListaPracownikow() {
         return listaPracownikow;
+    }
+    public void setBrygadzista(Brygadzista brygadzista) {
+        this.brygadzista = brygadzista;
     }
     public String getPracownicy(){
         String pracownicy = " ";

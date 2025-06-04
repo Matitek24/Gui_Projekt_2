@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public class AddBrygadzistaDialog extends JDialog {
     private JTextField firstNameField, lastNameField, loginField, passwordField;
-    private JSpinner dateSpinner;
+    private JComboBox<Integer> dayCombo, monthCombo, yearCombo;
     private JComboBox<String> departmentCombo;
     private boolean confirmed = false;
     private Brygadzista createdBrygadzista;
@@ -40,9 +40,32 @@ public class AddBrygadzistaDialog extends JDialog {
         fields.add(lastNameField);
 
         fields.add(new JLabel("Data ur.:"));
-        dateSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, new Date(), Calendar.DAY_OF_MONTH));
-        dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd"));
-        fields.add(dateSpinner);
+        JPanel datePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+
+        // Dzień (1-31)
+        dayCombo = new JComboBox<>();
+        for (int i = 1; i <= 31; i++) {
+            dayCombo.addItem(i);
+        }
+
+        // Miesiąc (1-12)
+        monthCombo = new JComboBox<>();
+        for (int i = 1; i <= 12; i++) {
+            monthCombo.addItem(i);
+        }
+
+        // Rok (1950-2023)
+        yearCombo = new JComboBox<>();
+        for (int i = 2023; i >= 1950; i--) {
+            yearCombo.addItem(i);
+        }
+
+        datePanel.add(dayCombo);
+        datePanel.add(new JLabel("/"));
+        datePanel.add(monthCombo);
+        datePanel.add(new JLabel("/"));
+        datePanel.add(yearCombo);
+        fields.add(datePanel);
 
         fields.add(new JLabel("Dział:"));
         List<Dzial> dzialy = DzialService.getDzialy();
@@ -69,13 +92,18 @@ public class AddBrygadzistaDialog extends JDialog {
         if (toEdit != null) {
             firstNameField.setText(toEdit.getImie());
             lastNameField.setText(toEdit.getNazwisko());
-            dateSpinner.setValue(Date.from(
-                    toEdit.getDataUrodzenia()
-                            .atStartOfDay()
-                            .atZone(ZoneId.systemDefault())
-                            .toInstant()
-            ));
-            departmentCombo.setSelectedItem(toEdit.getDzial().getNazwa_dzialu());
+
+            LocalDate birthDate = toEdit.getDataUrodzenia();
+            dayCombo.setSelectedItem(birthDate.getDayOfMonth());
+            monthCombo.setSelectedItem(birthDate.getMonthValue());
+            yearCombo.setSelectedItem(birthDate.getYear());
+
+            Dzial dzial = toEdit.getDzial();
+            if (dzial != null) {
+                departmentCombo.setSelectedItem(dzial.getNazwa_dzialu());
+            } else {
+                departmentCombo.setSelectedIndex(-1);
+            }
             loginField.setText(toEdit.getLogin());
             passwordField.setText(toEdit.getHaslo());
         }
@@ -104,10 +132,10 @@ public class AddBrygadzistaDialog extends JDialog {
                 throw new IllegalArgumentException("Wszystkie pola muszą być wypełnione.");
             }
 
-            LocalDate data = ((Date) dateSpinner.getValue())
-                    .toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
+            int day = (Integer) dayCombo.getSelectedItem();
+            int month = (Integer) monthCombo.getSelectedItem();
+            int year = (Integer) yearCombo.getSelectedItem();
+            LocalDate data = LocalDate.of(year, month, day);
 
             Dzial dz = dzialy.stream()
                     .filter(d -> d.getNazwa_dzialu().equals(departmentCombo.getSelectedItem()))

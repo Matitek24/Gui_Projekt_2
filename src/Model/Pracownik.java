@@ -1,11 +1,13 @@
 package Model;
 
+import Interface.IDzialowy;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pracownik implements Serializable {
+public class Pracownik implements Serializable, IDzialowy {
     private String imie;
     private String nazwisko;
     private LocalDate dataUrodzenia;

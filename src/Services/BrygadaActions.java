@@ -58,8 +58,10 @@ public class BrygadaActions implements EntityActions {
         }
 
         String[] opts = list.stream()
-                .map(b -> b.getId() + " - " + b.getName() + " (" + b.getBrygadzista().getLogin() + ")")
-                .toArray(String[]::new);
+                .map(b -> {
+                    String login = (b.getBrygadzista() != null) ? b.getBrygadzista().getLogin() : "brak brygadzisty";
+                    return b.getId() + " - " + b.getName() + " (" + login + ")";
+                }).toArray(String[]::new);
 
         String sel = (String) JOptionPane.showInputDialog(
                 parent,

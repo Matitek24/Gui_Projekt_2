@@ -1,8 +1,10 @@
 package Model;
 
+import Interface.IDzialowy;
+
 import java.time.LocalDate;
 
-public class Uzytkownik extends Pracownik{
+public class Uzytkownik extends Pracownik implements IDzialowy {
     private String login;
     private String haslo;
     private String inicial;

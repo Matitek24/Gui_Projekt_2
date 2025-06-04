@@ -2,6 +2,7 @@ package View;
 
 import Factory.EntityActionsFactory;
 import Interface.EntityActions;
+import Model.Uzytkownik;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,9 +28,10 @@ public class TopPanel extends JPanel {
     }
     private final CenterPanel centerPanel;
     private final JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-    public TopPanel(CenterPanel centerPanel) {
+    private final Uzytkownik user;
+    public TopPanel(CenterPanel centerPanel, Uzytkownik user) {
         this.centerPanel = centerPanel;
+        this.user = user;
         setLayout(new BorderLayout());
 
 
@@ -41,7 +43,9 @@ public class TopPanel extends JPanel {
         setupEntityButtons(actions);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rightPanel.add(createWelcomeButton("Witaj AS"));
+        String initials = user.getInicial();
+        String welcomeText = "Witaj " + initials;
+        rightPanel.add(createWelcomeButton(welcomeText));
 
         add(leftPanel, BorderLayout.WEST);
         add(rightPanel, BorderLayout.EAST);

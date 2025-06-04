@@ -10,6 +10,7 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import Exception.NotGetClassException;
 
 public class AddEmployeeDialog extends JDialog {
     private JTextField firstNameField;
@@ -54,10 +55,12 @@ public class AddEmployeeDialog extends JDialog {
         List<Dzial> dzialy = DzialService.getDzialy();
         if (dzialy.isEmpty()) {
             JOptionPane.showMessageDialog(parent, "Brak działów. Najpierw dodaj dział.");
-            dispose();
-            return;
+            throw new NotGetClassException("Brak Działow");
         }
-        String[] names = dzialy.stream().map(Dzial::getNazwa_dzialu).toArray(String[]::new);
+        String[] names = dzialy.stream()
+                .filter(d -> d != null && d.getNazwa_dzialu() != null)
+                .map(Dzial::getNazwa_dzialu)
+                .toArray(String[]::new);
         departmentCombo = new JComboBox<>(names);
         fields.add(departmentCombo);
 
@@ -72,8 +75,14 @@ public class AddEmployeeDialog extends JDialog {
             monthCombo.setSelectedItem(birth.getMonthValue());
             dayCombo.setSelectedItem(birth.getDayOfMonth());
 
-            departmentCombo.setSelectedItem(pracownikDoEdycji.getDzial().getNazwa_dzialu());
+            Dzial dzial = pracownikDoEdycji.getDzial();
+            if (dzial != null) {
+                departmentCombo.setSelectedItem(dzial.getNazwa_dzialu());
+            } else {
+                departmentCombo.setSelectedIndex(-1);
+            }
         }
+
 
         // --- Panel przycisków ---
         JPanel buttons = new JPanel();

@@ -2,12 +2,10 @@
 package Services;
 
 import Interface.AbstractCounterService;
+import Interface.IDzialowy;
 import Interface.Identifiable;
-import Model.Brygada;
-import Model.Brygadzista;
-import Model.Dzial;
+import Model.*;
 import Database.*;
-import Model.Pracownik;
 
 import java.util.List;
 
@@ -20,9 +18,13 @@ public class DzialService extends AbstractCounterService<Dzial> {
     }
 
     public static void removeDzial(Dzial d) {
+        usunDzialZTabeli(PracownikService.getPracownicy(), PracownikService::updatePracownik, d);
+        usunDzialZTabeli(BrygadzistaService.getBrygadzisci(), BrygadzistaService::updateBrygadzista, d);
+        usunDzialZTabeli(UzytkownikService.getUzytkownicy(), UzytkownikService::updateUzytkownik, d);
         db.remove(d);
         INSTANCE.initializeCounter();
         Dzial.unregisterName(d.getNazwa_dzialu());
+
     }
 
     public static List<Dzial> getDzialy() {
@@ -56,4 +58,14 @@ public class DzialService extends AbstractCounterService<Dzial> {
     protected int extractId(Dzial item) {
         return item.getId();
     }
+    // DzialService.java
+    private static <T extends IDzialowy> void usunDzialZTabeli(List<T> lista, java.util.function.Consumer<T> updater, Dzial d) {
+        lista.stream()
+                .filter(e -> e.getDzial() != null && e.getDzial().getId() == d.getId())
+                .forEach(e -> {
+                    e.setDzial(null);
+                    updater.accept(e);
+                });
+    }
+
 }

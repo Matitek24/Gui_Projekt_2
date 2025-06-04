@@ -2,6 +2,7 @@ package Services;
 
 import Database.Database;
 import Interface.AbstractCounterService;
+import Interface.IBrygadowy;
 import Model.Brygada;
 import Model.Brygadzista;
 import Model.Uzytkownik;
@@ -22,6 +23,7 @@ public class BrygadzistaService extends AbstractCounterService<Brygadzista> {
     }
 
     public static void removeBrygadzista(Brygadzista b) {
+        usunBrygadzisteZBrygad(BrygadaService.getBrygady(), BrygadaService::updateBrygada, b);
         db.remove(b);
         INSTANCE.initializeCounter();
     }
@@ -59,4 +61,18 @@ public class BrygadzistaService extends AbstractCounterService<Brygadzista> {
     protected int extractId(Brygadzista item) {
         return item.getId();
     }
+
+    private static <T extends IBrygadowy> void usunBrygadzisteZBrygad(
+            List<T> lista,
+            java.util.function.Consumer<T> updater,
+            Brygadzista brygadzista
+    ) {
+        lista.stream()
+                .filter(e -> e.getBrygadzista() != null && e.getBrygadzista().getBrygadzistaId() == brygadzista.getBrygadzistaId())
+                .forEach(e -> {
+                    e.setBrygadzista(null);
+                    updater.accept(e);
+                });
+    }
+
 }

@@ -53,6 +53,7 @@ public class BrygadzistaActions implements EntityActions {
                 BrygadzistaService::removeBrygadzista,
                 Brygadzista::getBrygadzistaId
         );
+//        centerPanel.refreshPanels();
     }
 
 

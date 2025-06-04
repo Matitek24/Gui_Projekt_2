@@ -1,10 +1,12 @@
 package Model;
 
+import Interface.IDzialowy;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class Brygadzista extends Uzytkownik implements Serializable {
+public class Brygadzista extends Uzytkownik implements Serializable, IDzialowy {
     private static int counter = 0;
     private ArrayList<Brygada> listaBrygad = new ArrayList<>();
     private final int brygadzistaId;
