@@ -38,7 +38,7 @@ public class TopPanel extends JPanel {
         leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 200, 5, 5));
 
         String currentEntity = "Dział pracowników";
-        EntityActions actions = EntityActionsFactory.createActions(currentEntity, centerPanel, this);
+        EntityActions actions = EntityActionsFactory.createActions(currentEntity, centerPanel, this, user);
 
         setupEntityButtons(actions);
 
@@ -63,7 +63,7 @@ public class TopPanel extends JPanel {
 
     public void setEntity(String entityName) {
         leftPanel.removeAll();
-        EntityActions actions = EntityActionsFactory.createActions(entityName, centerPanel, this);
+        EntityActions actions = EntityActionsFactory.createActions(entityName, centerPanel, this, user);
         setupEntityButtons(actions);
     }
 

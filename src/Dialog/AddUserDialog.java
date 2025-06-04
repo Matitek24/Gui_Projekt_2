@@ -19,10 +19,12 @@ public class AddUserDialog extends JDialog {
     private Uzytkownik createdUzytkownik;
     private Uzytkownik toEdit;
     private JComboBox<Integer> yearCombo, monthCombo, dayCombo;
+    private final Uzytkownik logged;
 
-    public AddUserDialog(Frame parent, Uzytkownik toEdit) {
+    public AddUserDialog(Frame parent, Uzytkownik toEdit, Uzytkownik logged) {
         super(parent, toEdit == null ? "Dodaj użytkownika" : "Edytuj użytkownika", true);
         this.toEdit = toEdit;
+        this.logged = logged;
         setLayout(new BorderLayout());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -73,31 +75,40 @@ public class AddUserDialog extends JDialog {
 
         // jeśli edycja – wypełnij istniejącymi danymi
         if (toEdit != null) {
+            // 2a. Wypełnij pola wartościami z toEdit
             firstNameField.setText(toEdit.getImie());
             lastNameField.setText(toEdit.getNazwisko());
-
             LocalDate data = toEdit.getDataUrodzenia();
             yearCombo.setSelectedItem(data.getYear());
             monthCombo.setSelectedItem(data.getMonthValue());
             dayCombo.setSelectedItem(data.getDayOfMonth());
-
             Dzial dzial = toEdit.getDzial();
             if (dzial != null) {
                 departmentCombo.setSelectedItem(dzial.getNazwa_dzialu());
             } else {
                 departmentCombo.setSelectedIndex(-1);
             }
-
             loginField.setText(toEdit.getLogin());
             passwordField.setText(toEdit.getHaslo());
+
+            // 2b. Sprawdzenie, czy edytowany użytkownik to aktualnie zalogowany
+            boolean sameAccount = (toEdit.getId() == logged.getId());
+            if (sameAccount) {
+                // Wyłączamy pola, które NIE WOLNO zmieniać:
+                firstNameField.setEnabled(false);
+                lastNameField.setEnabled(false);
+                yearCombo.setEnabled(false);
+                monthCombo.setEnabled(false);
+                dayCombo.setEnabled(false);
+                departmentCombo.setEnabled(false);
+                loginField.setEnabled(false);
+            }
         } else {
-            // ustaw domyślne wartości na dzisiaj, żeby nie było null
             LocalDate now = LocalDate.now();
             yearCombo.setSelectedItem(now.getYear());
             monthCombo.setSelectedItem(now.getMonthValue());
             dayCombo.setSelectedItem(now.getDayOfMonth());
         }
-
         // --- przyciski ---
         JPanel btns = new JPanel();
         JButton ok = new JButton("OK"), cancel = new JButton("Anuluj");
@@ -114,6 +125,27 @@ public class AddUserDialog extends JDialog {
 
     private void onOK(List<Dzial> dzialy) {
         try {
+
+            boolean sameAccount = (toEdit != null && toEdit.getId() == logged.getId());
+            if (sameAccount) {
+                // Pozwalamy na zmianę tylko hasła:
+                String newPass = passwordField.getText().trim();
+                if (newPass.isEmpty()) {
+                    JOptionPane.showMessageDialog(this,
+                            "Podaj nowe hasło.",
+                            "Błąd",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                toEdit.setHaslo(newPass);
+                createdUzytkownik = toEdit;
+                UzytkownikService.updateUzytkownik(createdUzytkownik);
+                confirmed = true;
+                dispose();
+                return;
+            }
+
+
             String imie = firstNameField.getText().trim();
             String nazw = lastNameField.getText().trim();
             String login = loginField.getText().trim();
@@ -153,14 +185,14 @@ public class AddUserDialog extends JDialog {
         }
     }
 
-    public static Optional<Uzytkownik> showDialog(Frame parent, Uzytkownik toEdit) {
-        AddUserDialog dlg = new AddUserDialog(parent, toEdit);
+    public static Optional<Uzytkownik> showDialog(Frame parent, Uzytkownik toEdit, Uzytkownik logged) {
+        AddUserDialog dlg = new AddUserDialog(parent, toEdit, logged);
         dlg.setVisible(true);
         return dlg.confirmed ? Optional.of(dlg.createdUzytkownik) : Optional.empty();
     }
 
-    public static Optional<Uzytkownik> showDialog(Frame parent) {
-        return showDialog(parent, null);
+    public static Optional<Uzytkownik> showDialog(Frame parent, Uzytkownik logged) {
+        return showDialog(parent, null, logged);
     }
 
     private Integer[] generateYears() {

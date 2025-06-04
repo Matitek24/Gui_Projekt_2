@@ -17,16 +17,18 @@ import java.util.Optional;
 public class UzytkownikActions implements EntityActions {
     private final CenterPanel centerPanel;
     private final Component parent;
+    private final Uzytkownik loggedUser;
 
-    public UzytkownikActions(CenterPanel centerPanel, Component parent) {
+    public UzytkownikActions(CenterPanel centerPanel, Component parent, Uzytkownik loggedUser) {
         this.centerPanel = centerPanel;
         this.parent = parent;
+        this.loggedUser = loggedUser;
     }
 
     @Override
     public void onAdd() {
         Frame frame = JOptionPane.getFrameForComponent(parent);
-        Optional<Uzytkownik> maybe = AddUserDialog.showDialog(frame);
+        Optional<Uzytkownik> maybe = AddUserDialog.showDialog(frame, loggedUser);
         maybe.ifPresent(u -> {
             TablePanel tp = centerPanel.getUzytkownikPanel();
             DefaultTableModel m = tp.getTableModel();
@@ -75,7 +77,7 @@ public class UzytkownikActions implements EntityActions {
         if (opt.isEmpty()) return;
 
         Frame frame = JOptionPane.getFrameForComponent(parent);
-        Optional<Uzytkownik> upd = AddUserDialog.showDialog(frame, opt.get());
+        Optional<Uzytkownik> upd = AddUserDialog.showDialog(frame, opt.get(), loggedUser);
         upd.ifPresent(u -> {
             TablePanel tp = centerPanel.getUzytkownikPanel();
             DefaultTableModel m = tp.getTableModel();

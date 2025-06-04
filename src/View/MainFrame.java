@@ -1,10 +1,12 @@
 package View;
 
+import Model.Brygadzista;
 import Model.Uzytkownik;
 
 import javax.swing.*;
 import java.awt.*;
 import Dialog.LoginDialog;
+import Dialog.ZleceniaCheckerDialog;
 
 public class MainFrame extends JFrame {
     private final Uzytkownik user;
@@ -27,7 +29,13 @@ public class MainFrame extends JFrame {
         add(topPanel, BorderLayout.NORTH);
         add(leftPanel, BorderLayout.WEST);
         add(centerPanel, BorderLayout.CENTER);
-
+        if (user instanceof Brygadzista) {
+            Brygadzista bz = (Brygadzista) user;
+            SwingUtilities.invokeLater(() -> {
+                ZleceniaCheckerDialog dlg = new ZleceniaCheckerDialog(this, bz);
+                dlg.setVisible(true);
+            });
+        }
     }
 
     public void logout() {

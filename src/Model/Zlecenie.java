@@ -62,6 +62,9 @@ public class Zlecenie implements Serializable {
             return wszystkieZlecenia.get(id);
         }
     }
+    public boolean isFinished() {
+        return prace.stream().allMatch(Praca::isCzyZrealizowane);
+    }
 
     public static void setCounter(int ct) {
         counter = ct;

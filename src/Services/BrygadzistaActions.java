@@ -20,15 +20,17 @@ public class BrygadzistaActions implements EntityActions {
 
     private final CenterPanel centerPanel;
     private final Component parent;
+    private final Uzytkownik loggedInUser;
 
-    public BrygadzistaActions(CenterPanel centerPanel, Component parent) {
+    public BrygadzistaActions(CenterPanel centerPanel, Component parent, Uzytkownik loggedInUser) {
         this.centerPanel = centerPanel;
         this.parent = parent;
+        this.loggedInUser = loggedInUser;
     }
 
     public void onAdd(){
         Frame frame = JOptionPane.getFrameForComponent(parent);
-        Optional<Brygadzista> dlg = AddBrygadzistaDialog.showDialog(frame);
+        Optional<Brygadzista> dlg = AddBrygadzistaDialog.showDialog(frame, loggedInUser);
         dlg.ifPresent(b -> {
             TablePanel tp = centerPanel.getBrygadzistaPanel();
             DefaultTableModel m = tp.getTableModel();
@@ -89,7 +91,7 @@ public class BrygadzistaActions implements EntityActions {
         }
 
         Frame frame = JOptionPane.getFrameForComponent(parent);
-        Optional<Brygadzista> upd = AddBrygadzistaDialog.showDialog(frame, opt.get());
+        Optional<Brygadzista> upd = AddBrygadzistaDialog.showDialog(frame, opt.get(), loggedInUser);
 
         upd.ifPresent(b -> {
             TablePanel tp = centerPanel.getBrygadzistaPanel(); // <<— Zwróć uwagę: brygadzistaPanel

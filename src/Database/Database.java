@@ -14,9 +14,6 @@ public class Database<T extends Serializable> implements Serializable {
     // Tu trzymamy obiekty
     private List<T> items;
 
-    /**
-     * Konstruktor przyjmujący typ T, dzięki czemu znamy nazwę pliku jeszcze przed wczytaniem.
-     */
     public Database(Class<T> type) {
         this.type = type;
         this.typeName = type.getSimpleName();

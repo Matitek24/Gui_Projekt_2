@@ -2,6 +2,7 @@ package Dialog;
 
 import Model.Brygadzista;
 import Model.Dzial;
+import Model.Uzytkownik;
 import Services.BrygadzistaService;
 import Services.DzialService;
 
@@ -21,10 +22,11 @@ public class AddBrygadzistaDialog extends JDialog {
     private boolean confirmed = false;
     private Brygadzista createdBrygadzista;
     private Brygadzista toEdit;
-
-    public AddBrygadzistaDialog(Frame parent, Brygadzista toEdit) {
+    private Uzytkownik loggedInUser;
+    public AddBrygadzistaDialog(Frame parent, Brygadzista toEdit, Uzytkownik loggedInUser) {
         super(parent, toEdit == null ? "Dodaj brygadzistę" : "Edytuj brygadzistę", true);
         this.toEdit = toEdit;
+        this.loggedInUser = loggedInUser;
         setLayout(new BorderLayout());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -106,6 +108,26 @@ public class AddBrygadzistaDialog extends JDialog {
             }
             loginField.setText(toEdit.getLogin());
             passwordField.setText(toEdit.getHaslo());
+
+            boolean sameAccount = false;
+            if (loggedInUser instanceof Brygadzista) {
+                Brygadzista loggedB = (Brygadzista) loggedInUser;
+                sameAccount = (loggedB.getBrygadzistaId() == toEdit.getBrygadzistaId());
+            }
+            if (sameAccount) {
+                firstNameField.setEnabled(false);
+                lastNameField.setEnabled(false);
+                dayCombo.setEnabled(false);
+                monthCombo.setEnabled(false);
+                yearCombo.setEnabled(false);
+                departmentCombo.setEnabled(false);
+                loginField.setEnabled(false);
+            }
+        } else {
+            LocalDate now = LocalDate.now();
+            dayCombo.setSelectedItem(now.getDayOfMonth());
+            monthCombo.setSelectedItem(now.getMonthValue());
+            yearCombo.setSelectedItem(now.getYear());
         }
 
         JPanel btns = new JPanel();
@@ -124,6 +146,29 @@ public class AddBrygadzistaDialog extends JDialog {
 
     private void onOK(List<Dzial> dzialy) {
         try {
+            boolean sameAccount = false;
+            if (loggedInUser instanceof Brygadzista && toEdit != null) {
+                Brygadzista loggedB = (Brygadzista) loggedInUser;
+                sameAccount = (loggedB.getBrygadzistaId() == toEdit.getBrygadzistaId());
+            }
+            if (sameAccount) {
+                String newPass = passwordField.getText().trim();
+                if (newPass.isEmpty()) {
+                    JOptionPane.showMessageDialog(this,
+                            "Podaj nowe hasło.",
+                            "Błąd",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                toEdit.setHaslo(newPass);
+                createdBrygadzista = toEdit;
+                BrygadzistaService.updateBrygadzista(createdBrygadzista);
+                confirmed = true;
+                dispose();
+                return;
+            }
+
+
             String imie = firstNameField.getText().trim();
             String nazw = lastNameField.getText().trim();
             String login = loginField.getText().trim();
@@ -167,13 +212,13 @@ public class AddBrygadzistaDialog extends JDialog {
         }
     }
 
-    public static Optional<Brygadzista> showDialog(Frame parent, Brygadzista toEdit) {
-        AddBrygadzistaDialog dlg = new AddBrygadzistaDialog(parent, toEdit);
+    public static Optional<Brygadzista> showDialog(Frame parent, Brygadzista toEdit, Uzytkownik loggedInUser) {
+        AddBrygadzistaDialog dlg = new AddBrygadzistaDialog(parent, toEdit, loggedInUser);
         dlg.setVisible(true);
         return dlg.confirmed ? Optional.of(dlg.createdBrygadzista) : Optional.empty();
     }
 
-    public static Optional<Brygadzista> showDialog(Frame parent) {
-        return showDialog(parent, null);
+    public static Optional<Brygadzista> showDialog(Frame parent, Uzytkownik loggedInUser) {
+        return showDialog(parent, null, loggedInUser);
     }
 }
