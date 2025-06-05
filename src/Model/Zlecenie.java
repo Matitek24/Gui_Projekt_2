@@ -101,10 +101,25 @@ public class Zlecenie implements Serializable {
         this.stan = stan;
     }
 
+    public void aktualizujStan(){
+        if (getPraca().isEmpty()){
+            this.stan = stan_zlecenia.ZAKOŃCZONE;
+            this.dataZakonczenia = LocalDateTime.now();
+            return;
+        }
+
+        boolean wszystkieZreal = prace.stream().allMatch(Praca::isCzyZrealizowane);
+        if(wszystkieZreal){
+            this.stan = stan_zlecenia.ZAKOŃCZONE;
+            this.dataZakonczenia = LocalDateTime.now();
+        }else {
+            this.stan = stan_zlecenia.REALIZOWANE;
+        }
+    }
 
     @Override
     public String toString() {
-        return "Zlecenie#" + id + "[" + stan + ", prace=" + prace + "]";
+        return "Zlecenie#" + id + "[" + stan + "]";
     }
 
 }

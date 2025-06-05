@@ -13,6 +13,7 @@ public class Praca implements Serializable {
     private boolean czyZrealizowane;
     private String opis;
     private static int COUNTER = 0;
+    private Zlecenie zlecenie;
     private final int id;
 
     public Praca(rodzaj_pracy rodzaj, int czas, String opis) {
@@ -41,6 +42,12 @@ public class Praca implements Serializable {
 
     public int getCzasPracy() {
         return czasPracy;
+    }
+    public Zlecenie getZlecenie() {
+        return zlecenie;
+    }
+    public void setZlecenie(Zlecenie zlecenie) {
+        this.zlecenie = zlecenie;
     }
 
     public void setCzasPracy(int czasPracy) {

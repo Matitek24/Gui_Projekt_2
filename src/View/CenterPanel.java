@@ -162,13 +162,14 @@ public class CenterPanel extends JPanel {
                         p.getOpis(),
                         p.getRodzajPracy(),
                         p.getCzasPracy(),
-                        p.isCzyZrealizowane()
+                        p.isCzyZrealizowane(),
+                        p.getZlecenie() != null ? p.getZlecenie().getId() : "Brak"
                 })
                 .toArray(Object[][]::new);
 
         return TablePanelFactory.createTablePanel(
                 "Prace",
-                new String[]{"ID", "Opis", "Rodzaj", "Czas (min)", "Zrealizowane"},
+                new String[]{"ID", "Opis", "Rodzaj", "Czas (min)", "Zrealizowane", "Zlecenie ID"},
                 data
         );
     }

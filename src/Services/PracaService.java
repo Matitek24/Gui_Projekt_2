@@ -9,8 +9,6 @@ import java.util.Optional;
 
 public class PracaService extends AbstractCounterService<Praca> {
     private static final Database<Praca> db = new Database<>(Praca.class);
-
-    // Singleton (podobnie jak w ZlecenieService) – inicjalizacja licznika przy starcie
     private static final PracaService INSTANCE = new PracaService();
 
     public static List<Praca> getPrace() {
@@ -34,9 +32,13 @@ public class PracaService extends AbstractCounterService<Praca> {
 
     public static void updatePraca(Praca p) {
         List<Praca> list = db.getItems();
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getId() == p.getId()) {
-                list.set(i, p);
+        for (Praca item : list) {
+            if (item.getId() == p.getId()) {
+                item.setRodzajPracy(p.getRodzajPracy());
+                item.setCzasPracy(p.getCzasPracy());
+                item.setOpis(p.getOpis());
+                item.setCzyZrealizowane(p.isCzyZrealizowane());
+                item.setZlecenie(p.getZlecenie());
                 break;
             }
         }

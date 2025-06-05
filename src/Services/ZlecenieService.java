@@ -2,8 +2,10 @@ package Services;
 
 import Database.Database;
 import Interface.AbstractCounterService;
+import Model.Praca;
 import Model.Zlecenie;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +38,20 @@ public class ZlecenieService extends AbstractCounterService<Zlecenie> {
             }
         }
         db.saveItems(list);
+    }
+
+    public static void finishZlecenie(Zlecenie z) {
+        if ( z == null) return;
+
+        for (Praca pr : z.getPraca()) {
+            pr.setCzyZrealizowane(true);
+            PracaService.updatePraca(pr);
+        }
+
+        z.setStan(Zlecenie.stan_zlecenia.ZAKOŃCZONE);
+        z.setDataZakonczenia(LocalDateTime.now());
+
+        updateZlecenie(z);
     }
 
     @Override

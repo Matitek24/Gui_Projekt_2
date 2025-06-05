@@ -28,7 +28,6 @@ public class PracaActions implements EntityActions {
         Frame frame = JOptionPane.getFrameForComponent(parent);
         Optional<Praca> result = AddPracaDialog.showDialog(frame);
         result.ifPresent(p -> {
-            PracaService.addPraca(p);
 
             TablePanel tp = centerPanel.getPracaPanel();
             DefaultTableModel m = tp.getTableModel();
@@ -40,6 +39,8 @@ public class PracaActions implements EntityActions {
                     p.isCzyZrealizowane()
             });
         });
+        centerPanel.refreshPanels();
+        centerPanel.showPanel("Praca");
     }
 
     @Override

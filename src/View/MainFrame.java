@@ -17,7 +17,7 @@ public class MainFrame extends JFrame {
 
         setTitle("S33334 Mateusz Skrzypek");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(900, 600);
+        setSize(1200, 600);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
