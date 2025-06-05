@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.List;
+import Dialog.StatsPanelDialog;
 
 public class LeftPanel extends JPanel {
     private CenterPanel centerPanel;
@@ -26,6 +27,7 @@ public class LeftPanel extends JPanel {
         List<String> buttonNames = Arrays.asList( "Dział pracowników", "Pracownik", "Użytkownik", "Brygadzista",
                 "Brygada", "Zlecenie", "Praca");
 
+
         buttonNames.stream()
                 .map(this::createButton)
                 .forEach(button ->{
@@ -38,14 +40,31 @@ public class LeftPanel extends JPanel {
                     add(button);
                 });
 
+        JButton statsButton = createButton("Statystyki");
+        statsButton.setOpaque(true);
+        statsButton.setBackground(new Color(70, 130, 180));
+        statsButton.setForeground(Color.white);
+        statsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        statsButton.addActionListener(e -> {
+            StatsPanelDialog dialog = new StatsPanelDialog(mainFrame);
+            dialog.setVisible(true);
+        });
+        statsButton.setBorderPainted(false);
+        add(Box.createVerticalStrut(5));
+        add(statsButton);
+
 
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JButton logoutButton = createButton("Wyloguj się");
+        logoutButton.setOpaque(true);
+        logoutButton.setBackground(new Color(239, 84, 75));
         logoutButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logoutButton.setForeground(Color.white);
         logoutButton.addActionListener(e -> handleLogout());
         logoutButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logoutButton.setBorderPainted(false);
         bottomPanel.add(logoutButton, BorderLayout.SOUTH);
 
         add(bottomPanel, BorderLayout.SOUTH);

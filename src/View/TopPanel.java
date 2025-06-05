@@ -8,7 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Optional;
+import Dialog.AddUserDialog;
 public class TopPanel extends JPanel {
 
     public enum ActionType {
@@ -101,8 +102,30 @@ public class TopPanel extends JPanel {
         button.setMargin(new Insets(10, 15, 10, 15));
         button.setForeground(Color.black);
         button.setOpaque(true);
+
+        // Dodajemy ActionListener, który otworzy AddUserDialog w trybie edycji samego zalogowanego
+        button.addActionListener(e -> {
+            // SwingUtilities.getWindowAncestor(this) zwraca okno (Frame) zawierające TopPanel
+            Window parentWindow = SwingUtilities.getWindowAncestor(this);
+
+            // Wywołujemy AddUserDialog w trybie "edytuj własne konto":
+            Optional<Uzytkownik> result = AddUserDialog.showDialog(
+                    (Frame) parentWindow,   // rodzic dialogu
+                    user,                   // toEdit = zalogowany użytkownik
+                    user                    // logged = ten sam obiekt
+            );
+
+            // Jeśli użytkownik kliknął "OK" i wynik jest obecny, to możemy zaktualizować inicjały w przycisku
+            result.ifPresent(updatedUser -> {
+                // Pobieramy nowe inicjały (choć ponieważ edytować można tylko hasło, inicjały w praktyce się nie zmienią).
+                String newInit = updatedUser.getInicial();
+                button.setText("Witaj " + newInit);
+            });
+        });
+
         return button;
     }
+
     private void styleExtraButton(JButton btn) {
     btn.setFocusPainted(false);
     btn.setMargin(new Insets(10, 15, 10, 15));
