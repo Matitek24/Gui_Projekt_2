@@ -82,7 +82,7 @@ public class DzialActions implements EntityActions {
                 DzialService::removeDzial,
                 Dzial::getId
         );
-        centerPanel.refreshPanels();
+        centerPanel.refreshAllTabs();
     }
 
     @Override

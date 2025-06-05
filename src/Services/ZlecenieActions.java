@@ -154,8 +154,9 @@ public class ZlecenieActions implements EntityActions {
                 Zlecenie::getId
         );
         // Po usunięciu od razu odświeżamy panel:
-        centerPanel.refreshPanels();
-        centerPanel.showPanel("Zlecenie");
+        centerPanel.refreshAllTabs();
+        centerPanel.setSelectedTab("Zlecenie");
+
     }
 
     @Override

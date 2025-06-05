@@ -39,8 +39,9 @@ public class PracaActions implements EntityActions {
                     p.isCzyZrealizowane()
             });
         });
-        centerPanel.refreshPanels();
-        centerPanel.showPanel("Praca");
+        centerPanel.refreshAllTabs();
+        centerPanel.setSelectedTab("Praca");
+
     }
 
     @Override

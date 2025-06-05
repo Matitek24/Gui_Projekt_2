@@ -2,49 +2,86 @@ package View;
 
 import Factory.TablePanel;
 import Factory.TablePanelFactory;
-import Model.Brygadzista;
 import Services.*;
 
 import javax.swing.*;
-import java.awt.*;
 
-public class CenterPanel extends JPanel {
+public class CenterPanel extends JTabbedPane {
 
-    private CardLayout cardLayout;
     private TablePanel dzialPanel;
     private TablePanel pracownikPanel;
     private TablePanel uzytkownikPanel;
     private TablePanel brygadzistaPanel;
     private TablePanel brygadaPanel;
     private TablePanel zleceniePanel;
-    private TablePanel PracaPanel;
+    private TablePanel pracaPanel;
 
     public CenterPanel() {
-
-        cardLayout = new CardLayout();
-        setLayout(cardLayout);
+        // Dodajemy kolejne zakładki w tej samej kolejności,
+        // w jakiej kiedyś mieliśmy karty w CardLayout.
 
         dzialPanel = createDzialPanel();
-        add(dzialPanel, "Dział pracowników");
+        addTab("Dział pracowników", dzialPanel);
 
         pracownikPanel = createPracownikPanel();
-        add(pracownikPanel, "Pracownik");
+        addTab("Pracownik", pracownikPanel);
 
         uzytkownikPanel = createUzytkownikPanel();
-        add(uzytkownikPanel, "Użytkownik");
+        addTab("Użytkownik", uzytkownikPanel);
 
         brygadzistaPanel = createBrygadzistaPanel();
-        add(brygadzistaPanel, "Brygadzista");
+        addTab("Brygadzista", brygadzistaPanel);
 
         brygadaPanel = createBrygadaPanel();
-        add(brygadaPanel, "Brygada");
+        addTab("Brygada", brygadaPanel);
 
         zleceniePanel = createZleceniePanel();
-        add(zleceniePanel, "Zlecenie");
+        addTab("Zlecenie", zleceniePanel);
 
-        PracaPanel = createPracaPanel();
-        add(PracaPanel, "Praca");
+        pracaPanel = createPracaPanel();
+        addTab("Praca", pracaPanel);
+    }
 
+    /**
+     * Pozwala wybrać zakładkę po tytule (używane w LeftPanel zamiast showPanel()).
+     */
+    public void setSelectedTab(String title) {
+        int idx = indexOfTab(title);
+        if (idx >= 0) {
+            setSelectedIndex(idx);
+        }
+    }
+
+    /**
+     * Jeśli gdziekolwiek dotychczas wywoływałeś refreshPanels(),
+     * możesz teraz wywołać refreshAllTabs() – usunie wszystkie i doda ponownie.
+     */
+    public void refreshAllTabs() {
+        removeAll();
+
+        dzialPanel = createDzialPanel();
+        addTab("Dział pracowników", dzialPanel);
+
+        pracownikPanel = createPracownikPanel();
+        addTab("Pracownik", pracownikPanel);
+
+        uzytkownikPanel = createUzytkownikPanel();
+        addTab("Użytkownik", uzytkownikPanel);
+
+        brygadzistaPanel = createBrygadzistaPanel();
+        addTab("Brygadzista", brygadzistaPanel);
+
+        brygadaPanel = createBrygadaPanel();
+        addTab("Brygada", brygadaPanel);
+
+        zleceniePanel = createZleceniePanel();
+        addTab("Zlecenie", zleceniePanel);
+
+        pracaPanel = createPracaPanel();
+        addTab("Praca", pracaPanel);
+
+        revalidate();
+        repaint();
     }
 
     private TablePanel createDzialPanel() {
@@ -75,10 +112,11 @@ public class CenterPanel extends JPanel {
 
         return TablePanelFactory.createTablePanel(
                 "Pracownicy",
-                new String[]{"ID", "Imię", "Nazwisko", "Dział", "Data urodzenia"},
+                new String[]{ "ID", "Imię", "Nazwisko", "Dział", "Data urodzenia" },
                 rowData
         );
     }
+
     private TablePanel createUzytkownikPanel() {
         Object[][] data = UzytkownikService.getUzytkownicy().stream()
                 .map(u -> new Object[]{
@@ -90,8 +128,8 @@ public class CenterPanel extends JPanel {
                         u.getInicial()
                 }).toArray(Object[][]::new);
         return TablePanelFactory.createTablePanel(
-                "Uzytkownicy",
-                new String[]{"ID","Imię","Nazwisko","Dział","Login","Inicjały"},
+                "Użytkownicy",
+                new String[]{ "ID", "Imię", "Nazwisko", "Dział", "Login", "Inicjały" },
                 data
         );
     }
@@ -109,7 +147,7 @@ public class CenterPanel extends JPanel {
                 }).toArray(Object[][]::new);
         return TablePanelFactory.createTablePanel(
                 "Brygadziści",
-                new String[]{"ID","Imię","Nazwisko","Dział","Login","Inicjały", "Liczba Brygad"},
+                new String[]{ "ID", "Imię", "Nazwisko", "Dział", "Login", "Inicjały", "Liczba Brygad" },
                 data
         );
     }
@@ -130,14 +168,14 @@ public class CenterPanel extends JPanel {
 
         return TablePanelFactory.createTablePanel(
                 "Brygady",
-                new String[]{"Id","Nazwa brygady", "Brygadzista", "Liczba pracowników"},
+                new String[]{ "ID", "Nazwa brygady", "Brygadzista", "Liczba pracowników" },
                 data
         );
-    };
+    }
 
     private TablePanel createZleceniePanel() {
         Object[][] data = ZlecenieService.getZlecenia().stream()
-                .map(z -> new Object[] {
+                .map(z -> new Object[]{
                         z.getId(),
                         z.getStan_zlecenia(),
                         z.getBrygada() != null ? z.getBrygada().getName() : "Brak",
@@ -150,7 +188,7 @@ public class CenterPanel extends JPanel {
 
         return TablePanelFactory.createTablePanel(
                 "Zlecenia",
-                new String[] { "ID", "Stan", "Brygada", "Liczba prac", "Data utworzenia", "Data rozpoczęcia", "Data zakończenia" },
+                new String[]{ "ID", "Stan", "Brygada", "Liczba prac", "Data utworzenia", "Data rozpoczęcia", "Data zakończenia" },
                 data
         );
     }
@@ -169,63 +207,36 @@ public class CenterPanel extends JPanel {
 
         return TablePanelFactory.createTablePanel(
                 "Prace",
-                new String[]{"ID", "Opis", "Rodzaj", "Czas (min)", "Zrealizowane", "Zlecenie ID"},
+                new String[]{ "ID", "Opis", "Rodzaj", "Czas (min)", "Zrealizowane", "Zlecenie ID" },
                 data
         );
     }
 
-
-
-    public void showPanel(String name) {
-        cardLayout.show(this, name);
-        revalidate();
-        repaint();
-    }
     public TablePanel getDzialPanel() {
         return dzialPanel;
     }
+
     public TablePanel getPracownikPanel() {
         return pracownikPanel;
     }
+
     public TablePanel getUzytkownikPanel() {
         return uzytkownikPanel;
     }
+
     public TablePanel getBrygadzistaPanel() {
         return brygadzistaPanel;
     }
+
     public TablePanel getBrygadaPanel() {
         return brygadaPanel;
     }
+
     public TablePanel getZleceniePanel() {
         return zleceniePanel;
     }
+
     public TablePanel getPracaPanel() {
-        return PracaPanel;
+        return pracaPanel;
     }
-
-    public void refreshPanels() {
-        removeAll();
-
-        dzialPanel = createDzialPanel();
-        pracownikPanel = createPracownikPanel();
-        uzytkownikPanel = createUzytkownikPanel();
-        brygadzistaPanel = createBrygadzistaPanel();
-        brygadaPanel = createBrygadaPanel();
-        zleceniePanel = createZleceniePanel();
-        PracaPanel = createPracaPanel();
-
-        add(dzialPanel, "Dział pracowników");
-        add(pracownikPanel, "Pracownik");
-        add(uzytkownikPanel, "Użytkownik");
-        add(brygadzistaPanel, "Brygadzista");
-        add(brygadaPanel, "Brygada");
-        add(zleceniePanel, "Zlecenie");
-        add(PracaPanel, "Praca");
-
-        revalidate();
-        repaint();
-    }
-
-
-
 }

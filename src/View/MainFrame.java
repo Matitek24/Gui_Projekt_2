@@ -22,7 +22,17 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         CenterPanel centerPanel = new CenterPanel();
+
         TopPanel topPanel = new TopPanel(centerPanel, user);
+        centerPanel.addChangeListener(e -> {
+            int idx = centerPanel.getSelectedIndex();
+            if (idx >= 0) {
+                String selectedTitle = centerPanel.getTitleAt(idx);
+                topPanel.setEntity(selectedTitle);
+            }
+        });
+
+
         LeftPanel leftPanel = new LeftPanel(centerPanel, topPanel, this);
 
 

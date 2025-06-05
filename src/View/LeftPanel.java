@@ -33,7 +33,7 @@ public class LeftPanel extends JPanel {
                 .forEach(button ->{
                     button.setAlignmentX(Component.CENTER_ALIGNMENT);
                     button.addActionListener(e -> {
-                        centerPanel.showPanel(button.getText());
+                        centerPanel.setSelectedTab(button.getText());
                         topPanel.setEntity(button.getText());
                     });
                     add(Box.createVerticalStrut(5));
