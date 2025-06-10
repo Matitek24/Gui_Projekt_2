@@ -67,7 +67,6 @@ public class Database<T extends Serializable> implements Serializable {
     }
 
     private String getFileName() {
-        // np. src/dane/db_Dzial.bin
         return "src/dane/db_" + typeName + ".bin";
     }
 }

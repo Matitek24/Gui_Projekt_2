@@ -103,9 +103,7 @@ public class TopPanel extends JPanel {
         button.setForeground(Color.black);
         button.setOpaque(true);
 
-        // Dodajemy ActionListener, który otworzy AddUserDialog w trybie edycji samego zalogowanego
         button.addActionListener(e -> {
-            // SwingUtilities.getWindowAncestor(this) zwraca okno (Frame) zawierające TopPanel
             Window parentWindow = SwingUtilities.getWindowAncestor(this);
 
             // Wywołujemy AddUserDialog w trybie "edytuj własne konto":
@@ -115,9 +113,7 @@ public class TopPanel extends JPanel {
                     user                    // logged = ten sam obiekt
             );
 
-            // Jeśli użytkownik kliknął "OK" i wynik jest obecny, to możemy zaktualizować inicjały w przycisku
             result.ifPresent(updatedUser -> {
-                // Pobieramy nowe inicjały (choć ponieważ edytować można tylko hasło, inicjały w praktyce się nie zmienią).
                 String newInit = updatedUser.getInicial();
                 button.setText("Witaj " + newInit);
             });

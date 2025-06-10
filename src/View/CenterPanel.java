@@ -41,7 +41,6 @@ public class CenterPanel extends JTabbedPane {
         pracaPanel = createPracaPanel();
         addTab("Praca", pracaPanel);
     }
-
     /**
      * Pozwala wybrać zakładkę po tytule (używane w LeftPanel zamiast showPanel()).
      */
@@ -51,7 +50,6 @@ public class CenterPanel extends JTabbedPane {
             setSelectedIndex(idx);
         }
     }
-
     /**
      * Jeśli gdziekolwiek dotychczas wywoływałeś refreshPanels(),
      * możesz teraz wywołać refreshAllTabs() – usunie wszystkie i doda ponownie.
