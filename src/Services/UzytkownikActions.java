@@ -58,39 +58,30 @@ public class UzytkownikActions implements EntityActions {
 
     @Override
     public void onEdit() {
-        List<Uzytkownik> list = UzytkownikService.getUzytkownicy();
-        if (list.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Brak użytkowników do edycji.");
+        TablePanel tp = centerPanel.getUzytkownikPanel();
+        JTable table = tp.getTable();
+        int selectedRow = table.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(parent, "Nie zaznaczono żadnego użytkownika.");
             return;
         }
-        String[] opts = list.stream()
-                .map(u-> u.getId()+" – "+u.getLogin())
-                .toArray(String[]::new);
 
-        String sel = (String) JOptionPane.showInputDialog(
-                parent, "Wybierz użytkownika:", "Edytuj",
-                JOptionPane.PLAIN_MESSAGE, null, opts, opts[0]
-        );
-        if (sel==null) return;
-        int id = Integer.parseInt(sel.split(" – ")[0]);
+        int id = ((Number) tp.getTableModel().getValueAt(selectedRow, 0)).intValue();
         Optional<Uzytkownik> opt = UzytkownikService.getById(id);
         if (opt.isEmpty()) return;
 
         Frame frame = JOptionPane.getFrameForComponent(parent);
         Optional<Uzytkownik> upd = AddUserDialog.showDialog(frame, opt.get(), loggedUser);
+
         upd.ifPresent(u -> {
-            TablePanel tp = centerPanel.getUzytkownikPanel();
             DefaultTableModel m = tp.getTableModel();
-            for (int r=0; r<m.getRowCount(); r++) {
-                if (((Integer)m.getValueAt(r,0))==id) {
-                    m.setValueAt(u.getImie(), r,1);
-                    m.setValueAt(u.getNazwisko(),r,2);
-                    m.setValueAt(u.getDzial().getNazwa_dzialu(),r,3);
-                    m.setValueAt(u.getLogin(), r,4);
-                    m.setValueAt(u.getInicial(),r,5);
-                    break;
-                }
-            }
+            m.setValueAt(u.getImie(), selectedRow, 1);
+            m.setValueAt(u.getNazwisko(), selectedRow, 2);
+            m.setValueAt(u.getDzial().getNazwa_dzialu(), selectedRow, 3);
+            m.setValueAt(u.getLogin(), selectedRow, 4);
+            m.setValueAt(u.getInicial(), selectedRow, 5);
         });
     }
+
 }

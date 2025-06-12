@@ -38,7 +38,6 @@ public class Brygada implements Serializable, IBrygadowy {
         }
         listaPracownikow.add(pracownik);
     }
-    // dodanie pracownikow z listy pracownikow
     public void appendPracownik(ArrayList<Pracownik> pracownicy) throws NotAcceptClassException {
         for(Pracownik pracownik : pracownicy) {
             if(pracownik instanceof Uzytkownik && !(pracownik instanceof Brygadzista)) {

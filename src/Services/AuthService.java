@@ -12,7 +12,6 @@ public class AuthService {
     public Optional<Uzytkownik> login(String login, String hasloPlain){
 
         if ("admin".equals(login) && "admin".equals(hasloPlain)) {
-            // Tymczasowy dział dla admina
             Dzial tymczasowyDzial = createDzial("Administracja");
 
             Uzytkownik admin = new Uzytkownik(
@@ -50,16 +49,4 @@ public class AuthService {
 
     }
 
-    public boolean changePassword(Uzytkownik user, String oldHaslo, String newHaslo) {
-        if (!user.getHaslo().equals(oldHaslo)) {
-            return false;
-        }
-        user.setHaslo(newHaslo);
-        if (user instanceof Brygadzista) {
-            BrygadzistaService.updateBrygadzista((Brygadzista) user);
-        } else {
-            UzytkownikService.updateUzytkownik(user);
-        }
-        return true;
-    }
 }

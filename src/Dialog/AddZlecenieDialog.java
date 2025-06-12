@@ -16,10 +16,13 @@ import Exception.*;
 public class AddZlecenieDialog extends JDialog {
     private JComboBox<Zlecenie.stan_zlecenia> stanCombo;
     private JComboBox<String> brygadaCombo;
-
     private JComboBox<Integer> dataUtwYear, dataUtwMonth, dataUtwDay;
     private JComboBox<Integer> dataRozpYear, dataRozpMonth, dataRozpDay;
     private JComboBox<Integer> dataZakYear, dataZakMonth, dataZakDay;
+    private JComboBox<Integer> dataUtwHour, dataUtwMinute;
+    private JComboBox<Integer> dataRozpHour, dataRozpMinute;
+    private JComboBox<Integer> dataZakHour, dataZakMinute;
+
 
     private boolean confirmed = false;
     private Zlecenie createdZlecenie;
@@ -30,6 +33,7 @@ public class AddZlecenieDialog extends JDialog {
         this.toEdit = toEdit;
         setLayout(new BorderLayout());
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
 
         JPanel fields = new JPanel(new GridLayout(5, 2, 5, 5));
         fields.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -59,51 +63,68 @@ public class AddZlecenieDialog extends JDialog {
         dataUtwYear = new JComboBox<>(generateYears());
         dataUtwMonth = new JComboBox<>(generateMonthOrDay(12));
         dataUtwDay = new JComboBox<>(generateMonthOrDay(31));
-        fields.add(createDatePanel(dataUtwYear, dataUtwMonth, dataUtwDay));
+        dataUtwHour = new JComboBox<>(generateHour());
+        dataUtwMinute = new JComboBox<>(generateMinute());
+        fields.add(createDatePanel(dataUtwYear, dataUtwMonth, dataUtwDay, dataUtwHour, dataUtwMinute));
 
         // Data rozpoczęcia
         fields.add(new JLabel("Data rozpoczęcia:"));
         dataRozpYear = new JComboBox<>(generateYears());
         dataRozpMonth = new JComboBox<>(generateMonthOrDay(12));
         dataRozpDay = new JComboBox<>(generateMonthOrDay(31));
-        fields.add(createDatePanel(dataRozpYear, dataRozpMonth, dataRozpDay));
+        dataRozpHour = new JComboBox<>(generateHour());
+        dataRozpMinute = new JComboBox<>(generateMinute());
+        fields.add(createDatePanel(dataRozpYear, dataRozpMonth, dataRozpDay, dataRozpHour, dataRozpMinute));
 
         // Data zakończenia
         fields.add(new JLabel("Data zakończenia:"));
         dataZakYear = new JComboBox<>(generateYears());
         dataZakMonth = new JComboBox<>(generateMonthOrDay(12));
         dataZakDay = new JComboBox<>(generateMonthOrDay(31));
-        fields.add(createDatePanel(dataZakYear, dataZakMonth, dataZakDay));
+        dataZakHour = new JComboBox<>(generateHour());
+        dataZakMinute = new JComboBox<>(generateMinute());
+        fields.add(createDatePanel(dataZakYear, dataZakMonth, dataZakDay, dataZakHour, dataZakMinute));
 
         add(fields, BorderLayout.CENTER);
 
         // Wypełnij dane jeśli edycja
         if (toEdit != null) {
             stanCombo.setSelectedItem(toEdit.stan);
+
             if (toEdit.getBrygada() != null) {
                 String sel = toEdit.getBrygada().getId() + " - " + toEdit.getBrygada().getName();
                 brygadaCombo.setSelectedItem(sel);
             }
 
-            LocalDate dUtw = toEdit.getDataUtworzenia().toLocalDate();
+            // Data utworzenia
+            LocalDateTime dUtw = toEdit.getDataUtworzenia();
             dataUtwYear.setSelectedItem(dUtw.getYear());
             dataUtwMonth.setSelectedItem(dUtw.getMonthValue());
             dataUtwDay.setSelectedItem(dUtw.getDayOfMonth());
+            dataUtwHour.setSelectedItem(dUtw.getHour());
+            dataUtwMinute.setSelectedItem(dUtw.getMinute());
 
+            // Data rozpoczęcia
             if (toEdit.getDataRozpoczecia() != null) {
-                LocalDate dRozp = toEdit.getDataRozpoczecia().toLocalDate();
+                LocalDateTime dRozp = toEdit.getDataRozpoczecia();
                 dataRozpYear.setSelectedItem(dRozp.getYear());
                 dataRozpMonth.setSelectedItem(dRozp.getMonthValue());
                 dataRozpDay.setSelectedItem(dRozp.getDayOfMonth());
+                dataRozpHour.setSelectedItem(dRozp.getHour());
+                dataRozpMinute.setSelectedItem(dRozp.getMinute());
             }
 
+            // Data zakończenia
             if (toEdit.getDataZakonczenia() != null) {
-                LocalDate dZak = toEdit.getDataZakonczenia().toLocalDate();
+                LocalDateTime dZak = toEdit.getDataZakonczenia();
                 dataZakYear.setSelectedItem(dZak.getYear());
                 dataZakMonth.setSelectedItem(dZak.getMonthValue());
                 dataZakDay.setSelectedItem(dZak.getDayOfMonth());
+                dataZakHour.setSelectedItem(dZak.getHour());
+                dataZakMinute.setSelectedItem(dZak.getMinute());
             }
         }
+
 
         JPanel btns = new JPanel();
         JButton ok = new JButton("OK");
@@ -130,12 +151,13 @@ public class AddZlecenieDialog extends JDialog {
                     .findFirst()
                     .orElseThrow();
 
-            LocalDateTime dataUtwDT = LocalDate.of(
+            LocalDateTime dataUtwDT = LocalDateTime.of(
                     (Integer) dataUtwYear.getSelectedItem(),
                     (Integer) dataUtwMonth.getSelectedItem(),
-                    (Integer) dataUtwDay.getSelectedItem()
-            ).atStartOfDay();
-
+                    (Integer) dataUtwDay.getSelectedItem(),
+                    (Integer) dataUtwHour.getSelectedItem(),
+                    (Integer) dataUtwMinute.getSelectedItem()
+            );
             LocalDateTime dataRozpDT = null;
             if (dataRozpYear.getSelectedItem() != null &&
                     dataRozpMonth.getSelectedItem() != null &&
@@ -195,13 +217,19 @@ public class AddZlecenieDialog extends JDialog {
         return showDialog(parent, null);
     }
 
-    private JPanel createDatePanel(JComboBox<Integer> year, JComboBox<Integer> month, JComboBox<Integer> day) {
+    private JPanel createDatePanel(JComboBox<Integer> year, JComboBox<Integer> month, JComboBox<Integer> day,
+                                   JComboBox<Integer> hour, JComboBox<Integer> minute) {
         JPanel panel = new JPanel();
         panel.add(year);
         panel.add(new JLabel("-"));
         panel.add(month);
         panel.add(new JLabel("-"));
         panel.add(day);
+        panel.add(new JLabel("godz:"));
+        panel.add(hour);
+        panel.add(new JLabel(":"));
+        panel.add(minute);
+
         return panel;
     }
 
@@ -220,5 +248,17 @@ public class AddZlecenieDialog extends JDialog {
             values[i] = i + 1;
         }
         return values;
+    }
+
+    private Integer[] generateHour() {
+        Integer[] hours = new Integer[24];
+        for (int i = 0; i < 24; i++) hours[i] = i;
+        return hours;
+    }
+
+    private Integer[] generateMinute() {
+        Integer[] mins = new Integer[60];
+        for (int i = 0; i < 60; i++) mins[i] = i;
+        return mins;
     }
 }

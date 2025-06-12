@@ -5,7 +5,9 @@ import Interface.AbstractCounterService;
 import Model.Brygada;
 import Model.Brygadzista;
 import Model.Pracownik;
+import Exception.NotAcceptClassException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +33,16 @@ public class BrygadaService extends AbstractCounterService<Brygada> {
         return db.getItems().stream().filter(u->u.getId()==id).findFirst();
     }
 
+    public static void appendPracownik(Brygada brygada, Pracownik pracownik) throws NotAcceptClassException {
+        brygada.appendPracownik(pracownik);
+        updateBrygada(brygada);
+    }
+
+
+    public static void appendPracownik(Brygada brygada, List<Pracownik> listaPracownikow) throws NotAcceptClassException {
+        brygada.appendPracownik(new ArrayList<>(listaPracownikow));
+        updateBrygada(brygada);
+    }
 
     @Override
     protected List<Brygada> getItems() {

@@ -18,7 +18,6 @@ public class Database<T extends Serializable> implements Serializable {
         this.type = type;
         this.typeName = type.getSimpleName();
         readFromFile();
-
     }
 
     public List<T> getItems() {
@@ -47,7 +46,6 @@ public class Database<T extends Serializable> implements Serializable {
     private void readFromFile() {
         File f = new File(getFileName());
         if (!f.exists()) {
-            // jeśli nie ma pliku, to nowa, pusta lista
             items = new ArrayList<>();
             return;
         }

@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.swing.*;
 
-public class Main {
+public class S33334 {
     public static void main(String[] args) {
         List<AbstractCounterService<?>> services = List.of(
                 new DzialService(),

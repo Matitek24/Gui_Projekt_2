@@ -103,12 +103,17 @@ public class AddBrygadaDialog extends JDialog {
                 // Tworzymy nową brygadę i zapisujemy przez serwis
                 createdBrygada = new Brygada(nazwa, chosen);
                 BrygadaService.addBrygada(createdBrygada);
+                BrygadzistaService.updateBrygadzista(chosen);
             } else {
-                // Edytujemy istniejącą brygadę
+                Brygadzista old = toEdit.getBrygadzista();
                 toEdit.setName(nazwa);
                 toEdit.changeBrygadzista(chosen);
                 createdBrygada = toEdit;
                 BrygadaService.updateBrygada(createdBrygada);
+                if (old != null) {
+                    BrygadzistaService.updateBrygadzista(old);
+                }
+                BrygadzistaService.updateBrygadzista(chosen);
             }
 
             confirmed = true;

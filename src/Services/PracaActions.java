@@ -58,53 +58,32 @@ public class PracaActions implements EntityActions {
 
     @Override
     public void onEdit() {
-        List<Praca> list = PracaService.getPrace();
-        if (list.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Brak prac do edycji.");
+        TablePanel tp = centerPanel.getPracaPanel();
+        JTable table = tp.getTable();
+        int selectedRow = table.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(parent, "Nie zaznaczono żadnej pracy.");
             return;
         }
 
-        // Tworzymy tablicę opcji w formacie "id - opis (rodzaj)"
-        String[] opts = list.stream()
-                .map(p -> p.getId() + " - " + p.getOpis() + " (" + p.getRodzajPracy() + ")")
-                .toArray(String[]::new);
-
-        String sel = (String) JOptionPane.showInputDialog(
-                parent,
-                "Wybierz pracę do edycji:",
-                "Edytuj pracę",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                opts,
-                opts[0]
-        );
-        if (sel == null) return;  // user anulował
-
-        int id = Integer.parseInt(sel.split(" - ")[0]);
+        int id = ((Number) tp.getTableModel().getValueAt(selectedRow, 0)).intValue();
         Optional<Praca> opt = PracaService.getById(id);
         if (opt.isEmpty()) return;
 
-        // Otwieramy dialog z wypełnionymi polami na podstawie istniejącej Praca
         Frame frame = JOptionPane.getFrameForComponent(parent);
         Optional<Praca> updated = AddPracaDialog.showDialog(frame, opt.get());
 
         updated.ifPresent(p -> {
-            // Zapisujemy zmiany w bazie
             PracaService.updatePraca(p);
-
-            // Odświeżamy wybrany wiersz w tabeli
-            TablePanel tp = centerPanel.getPracaPanel();
             DefaultTableModel m = tp.getTableModel();
-            for (int r = 0; r < m.getRowCount(); r++) {
-                int rowId = ((Number) m.getValueAt(r, 0)).intValue();
-                if (rowId == id) {
-                    m.setValueAt(p.getOpis(), r, 1);
-                    m.setValueAt(p.getRodzajPracy(), r, 2);
-                    m.setValueAt(p.getCzasPracy(), r, 3);
-                    m.setValueAt(p.isCzyZrealizowane(), r, 4);
-                    break;
-                }
-            }
+            m.setValueAt(p.getOpis(), selectedRow, 1);
+            m.setValueAt(p.getRodzajPracy(), selectedRow, 2);
+            m.setValueAt(p.getCzasPracy(), selectedRow, 3);
+            m.setValueAt(p.isCzyZrealizowane(), selectedRow, 4);
         });
+        centerPanel.refreshAllTabs();
+        centerPanel.setSelectedTab("Praca");
     }
+
 }

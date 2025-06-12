@@ -66,64 +66,30 @@ public class PracownikActions implements EntityActions {
 
     @Override
     public void onEdit() {
-        // Pobierz wszystkich pracowników
-        List<Pracownik> pracownicy = PracownikService.getPracownicy();
-        if (pracownicy.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Brak pracowników do edycji.");
+        TablePanel tp = centerPanel.getPracownikPanel();
+        JTable table = tp.getTable();
+        int selectedRow = table.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(parent, "Nie zaznaczono żadnego pracownika.");
             return;
         }
 
-        // Stwórz tablicę wyboru w formacie "ID – Imię Nazwisko"
-        String[] options = pracownicy.stream()
-                .map(p -> p.getId() + " – " + p.getImie() + " " + p.getNazwisko())
-                .toArray(String[]::new);
-
-        // Wyświetl okno wyboru
-        String selected = (String) JOptionPane.showInputDialog(
-                parent,
-                "Wybierz pracownika do edycji:",
-                "Edytuj pracownika",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                options,
-                options[0]
-        );
-        if (selected == null) {
-            // użytkownik anulował
-            return;
-        }
-
-        // Z parsowanego teksu wyciągnij ID (to, co było przed " – ")
-        int id = Integer.parseInt(selected.split(" – ")[0]);
+        int id = ((Number) tp.getTableModel().getValueAt(selectedRow, 0)).intValue();
         Optional<Pracownik> opt = PracownikService.getPracownikById(id);
-        if (opt.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Pracownik o ID " + id + " nie znaleziony.");
-            return;
-        }
+        if (opt.isEmpty()) return;
 
-        // Otwórz dialog edycji
         Frame frame = JOptionPane.getFrameForComponent(parent);
         Optional<Pracownik> updated = AddEmployeeDialog.showDialog(frame, opt.get());
-        if (updated.isEmpty()) {
-            // użytkownik anulował edycję
-            return;
-        }
 
-        Pracownik p = updated.get();
-
-        // Znajdź wiersz z tym ID w tabeli i zaktualizuj komórki
-        TablePanel tp = centerPanel.getPracownikPanel();
-        DefaultTableModel model = tp.getTableModel();
-        JTable table = tp.getTable();
-        for (int row = 0; row < model.getRowCount(); row++) {
-            if (((Integer)model.getValueAt(row, 0)).intValue() == id) {
-                model.setValueAt(p.getImie(), row, 1);
-                model.setValueAt(p.getNazwisko(), row, 2);
-                model.setValueAt(p.getDzial().getNazwa_dzialu(), row, 3);
-                model.setValueAt(p.getDataUrodzenia(), row, 4);
-                break;
-            }
-        }
+        updated.ifPresent(p -> {
+            DefaultTableModel model = tp.getTableModel();
+            model.setValueAt(p.getImie(), selectedRow, 1);
+            model.setValueAt(p.getNazwisko(), selectedRow, 2);
+            model.setValueAt(p.getDzial().getNazwa_dzialu(), selectedRow, 3);
+            model.setValueAt(p.getDataUrodzenia(), selectedRow, 4);
+        });
     }
+
 
 }

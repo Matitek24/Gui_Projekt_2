@@ -87,60 +87,46 @@ public class DzialActions implements EntityActions {
 
     @Override
     public void onEdit() {
-        List<Dzial> dzialy = DzialService.getDzialy();
-        if (dzialy.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Brak działów do edycji.");
+        TablePanel tp = centerPanel.getDzialPanel();
+        JTable table = tp.getTable();
+        int selectedRow = table.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(parent, "Nie zaznaczono żadnego działu do edycji.");
             return;
         }
 
-        String[] options = dzialy.stream()
-                .map(d -> d.getId() + " – " + d.getNazwa_dzialu())
-                .toArray(String[]::new);
+        int id = (Integer) tp.getTableModel().getValueAt(selectedRow, 0);
 
-        String selected = (String) JOptionPane.showInputDialog(
-                parent,
-                "Wybierz dział do edycji:",
-                "Edytuj dział",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                options,
-                options[0]
-        );
-        if (selected == null) return;
-
-        int id = Integer.parseInt(selected.split(" – ")[0]);
-        Dzial oldDzial = dzialy.stream()
+        Dzial dzial = DzialService.getDzialy().stream()
                 .filter(d -> d.getId() == id)
                 .findFirst()
                 .orElse(null);
-        if (oldDzial == null) {
+
+        if (dzial == null) {
             JOptionPane.showMessageDialog(parent, "Nie znaleziono działu o ID " + id);
             return;
         }
 
         String newName = InputDialog.showDialog(
                 parent,
-                "Nowa nazwa działu (poprzednio: " + oldDzial.getNazwa_dzialu() + ")",
+                "Nowa nazwa działu (poprzednio: " + dzial.getNazwa_dzialu() + ")",
                 "Edytuj dział"
         );
+
         if (newName == null || newName.trim().isEmpty()) return;
 
         try {
-            oldDzial.rename(newName.trim());
-            DzialService.updateDzial(oldDzial);
+            dzial.rename(newName.trim());
+            DzialService.updateDzial(dzial);
 
-            TablePanel tp = centerPanel.getDzialPanel();
-            DefaultTableModel model = tp.getTableModel();
-            for (int row = 0; row < model.getRowCount(); row++) {
-                if (((Integer) model.getValueAt(row, 0)) == id) {
-                    model.setValueAt(newName.trim(), row, 1);
-                    break;
-                }
-            }
+            tp.getTableModel().setValueAt(newName.trim(), selectedRow, 1);
+
         } catch (NotUniqueNameException ex) {
             JOptionPane.showMessageDialog(parent, ex.getMessage(), "Błąd", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
     @Override
     public List<JButton> getExtraButtons() {

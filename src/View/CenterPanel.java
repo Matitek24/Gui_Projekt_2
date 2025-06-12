@@ -5,9 +5,15 @@ import Factory.TablePanelFactory;
 import Services.*;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class CenterPanel extends JTabbedPane {
-
+    // Pola paneli i suppliers
     private TablePanel dzialPanel;
     private TablePanel pracownikPanel;
     private TablePanel uzytkownikPanel;
@@ -16,103 +22,94 @@ public class CenterPanel extends JTabbedPane {
     private TablePanel zleceniePanel;
     private TablePanel pracaPanel;
 
+    private final Map<String, Supplier<TablePanel>> panelSuppliers = new LinkedHashMap<>();
+
     public CenterPanel() {
-        // Dodajemy kolejne zakładki w tej samej kolejności,
-        // w jakiej kiedyś mieliśmy karty w CardLayout.
 
-        dzialPanel = createDzialPanel();
-        addTab("Dział pracowników", dzialPanel);
-
-        pracownikPanel = createPracownikPanel();
-        addTab("Pracownik", pracownikPanel);
-
-        uzytkownikPanel = createUzytkownikPanel();
-        addTab("Użytkownik", uzytkownikPanel);
-
-        brygadzistaPanel = createBrygadzistaPanel();
-        addTab("Brygadzista", brygadzistaPanel);
-
-        brygadaPanel = createBrygadaPanel();
-        addTab("Brygada", brygadaPanel);
-
-        zleceniePanel = createZleceniePanel();
-        addTab("Zlecenie", zleceniePanel);
-
-        pracaPanel = createPracaPanel();
-        addTab("Praca", pracaPanel);
+        panelSuppliers.put("Dział pracowników", () -> { dzialPanel = createDzialPanel(); return dzialPanel; });
+        panelSuppliers.put("Pracownik",          () -> { pracownikPanel = createPracownikPanel(); return pracownikPanel; });
+        panelSuppliers.put("Użytkownik",         () -> { uzytkownikPanel = createUzytkownikPanel(); return uzytkownikPanel; });
+        panelSuppliers.put("Brygadzista",        () -> { brygadzistaPanel = createBrygadzistaPanel(); return brygadzistaPanel; });
+        panelSuppliers.put("Brygada",            () -> { brygadaPanel = createBrygadaPanel(); return brygadaPanel; });
+        panelSuppliers.put("Zlecenie",           () -> { zleceniePanel = createZleceniePanel(); return zleceniePanel; });
+        panelSuppliers.put("Praca",              () -> { pracaPanel = createPracaPanel(); return pracaPanel; });
+        setSelectedTab("Dział pracowników");
     }
-    /**
-     * Pozwala wybrać zakładkę po tytule (używane w LeftPanel zamiast showPanel()).
-     */
+
+
     public void setSelectedTab(String title) {
         int idx = indexOfTab(title);
+        if (idx < 0) {
+            Supplier<TablePanel> supplier = panelSuppliers.get(title);
+            if (supplier != null) {
+                TablePanel panel = supplier.get();
+                addClosableTab(title, panel);
+                idx = indexOfTab(title);
+            }
+        }
         if (idx >= 0) {
             setSelectedIndex(idx);
         }
     }
-    /**
-     * Jeśli gdziekolwiek dotychczas wywoływałeś refreshPanels(),
-     * możesz teraz wywołać refreshAllTabs() – usunie wszystkie i doda ponownie.
-     */
+
+
     public void refreshAllTabs() {
         removeAll();
-
-        dzialPanel = createDzialPanel();
-        addTab("Dział pracowników", dzialPanel);
-
-        pracownikPanel = createPracownikPanel();
-        addTab("Pracownik", pracownikPanel);
-
-        uzytkownikPanel = createUzytkownikPanel();
-        addTab("Użytkownik", uzytkownikPanel);
-
-        brygadzistaPanel = createBrygadzistaPanel();
-        addTab("Brygadzista", brygadzistaPanel);
-
-        brygadaPanel = createBrygadaPanel();
-        addTab("Brygada", brygadaPanel);
-
-        zleceniePanel = createZleceniePanel();
-        addTab("Zlecenie", zleceniePanel);
-
-        pracaPanel = createPracaPanel();
-        addTab("Praca", pracaPanel);
-
+        for (Map.Entry<String, Supplier<TablePanel>> entry : panelSuppliers.entrySet()) {
+            String title = entry.getKey();
+            TablePanel panel = entry.getValue().get();
+            addClosableTab(title, panel);
+        }
         revalidate();
         repaint();
     }
 
+    private void addClosableTab(String title, TablePanel comp) {
+        addTab(title, comp);
+        int idx = indexOfComponent(comp);
+
+        JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        header.setOpaque(true);
+        header.setBackground(getBackground());
+        JLabel lbl = new JLabel(title);
+        JButton btnClose = new JButton("✕");
+        btnClose.setBorder(null);
+        btnClose.setOpaque(false);
+        btnClose.setFocusable(false);
+        btnClose.setPreferredSize(new Dimension(16, 16));
+        btnClose.addActionListener(e -> {
+            removeTabAt(indexOfComponent(comp));
+        });
+
+        header.add(lbl);
+        header.add(Box.createHorizontalStrut(4));
+        header.add(btnClose);
+        setTabComponentAt(idx, header);
+    }
+
+
+
+    // Metody tworzenia paneli:
     private TablePanel createDzialPanel() {
-        Object[][] rowData = DzialService.getDzialy().stream()
+        Object[][] data = DzialService.getDzialy().stream()
                 .map(d -> new Object[]{
                         d.getId(),
-                        d.getNazwa_dzialu()
-                })
+                        d.getNazwa_dzialu()})
                 .toArray(Object[][]::new);
-
-        return TablePanelFactory.createTablePanel(
-                "Działy",
-                new String[]{ "ID", "Nazwa" },
-                rowData
-        );
+        return TablePanelFactory.createTablePanel("Działy", new String[]{"ID", "Nazwa"}, data);
     }
 
     private TablePanel createPracownikPanel() {
-        Object[][] rowData = PracownikService.getPracownicy().stream()
+        Object[][] data = PracownikService.getPracownicy().stream()
                 .map(p -> new Object[]{
                         p.getId(),
                         p.getImie(),
                         p.getNazwisko(),
                         p.getDzial() != null ? p.getDzial().getNazwa_dzialu() : "Brak działu",
-                        p.getDataUrodzenia()
-                })
+                        p.getDataUrodzenia()})
                 .toArray(Object[][]::new);
-
-        return TablePanelFactory.createTablePanel(
-                "Pracownicy",
-                new String[]{ "ID", "Imię", "Nazwisko", "Dział", "Data urodzenia" },
-                rowData
-        );
+        return TablePanelFactory.createTablePanel("Pracownicy",
+                new String[]{"ID","Imię","Nazwisko","Dział","Data urodzenia"}, data);
     }
 
     private TablePanel createUzytkownikPanel() {
@@ -121,15 +118,11 @@ public class CenterPanel extends JTabbedPane {
                         u.getId(),
                         u.getImie(),
                         u.getNazwisko(),
-                        u.getDzial() != null ? u.getDzial().getNazwa_dzialu() : "Brak działu",
-                        u.getLogin(),
-                        u.getInicial()
-                }).toArray(Object[][]::new);
-        return TablePanelFactory.createTablePanel(
-                "Użytkownicy",
-                new String[]{ "ID", "Imię", "Nazwisko", "Dział", "Login", "Inicjały" },
-                data
-        );
+                        u.getDzial()!=null?u.getDzial().getNazwa_dzialu():"Brak działu",
+                        u.getLogin(), u.getInicial()})
+                .toArray(Object[][]::new);
+        return TablePanelFactory.createTablePanel("Użytkownicy",
+                new String[]{"ID","Imię","Nazwisko","Dział","Login","Inicjały"}, data);
     }
 
     private TablePanel createBrygadzistaPanel() {
@@ -138,16 +131,11 @@ public class CenterPanel extends JTabbedPane {
                         b.getBrygadzistaId(),
                         b.getImie(),
                         b.getNazwisko(),
-                        b.getDzial() != null ? b.getDzial().getNazwa_dzialu() : "Brak działu",
-                        b.getLogin(),
-                        b.getInicial(),
-                        b.getListaBrygad().size() + " brygad"
-                }).toArray(Object[][]::new);
-        return TablePanelFactory.createTablePanel(
-                "Brygadziści",
-                new String[]{ "ID", "Imię", "Nazwisko", "Dział", "Login", "Inicjały", "Liczba Brygad" },
-                data
-        );
+                        b.getDzial()!=null?b.getDzial().getNazwa_dzialu():"Brak działu",
+                        b.getLogin(),b.getInicial(),b.getListaBrygad().size()+" brygad"})
+                .toArray(Object[][]::new);
+        return TablePanelFactory.createTablePanel("Brygadziści",
+                new String[]{"ID","Imię","Nazwisko","Dział","Login","Inicjały","Liczba Brygad"}, data);
     }
 
     private TablePanel createBrygadaPanel() {
@@ -155,20 +143,11 @@ public class CenterPanel extends JTabbedPane {
                 .map(br -> new Object[]{
                         br.getId(),
                         br.getName(),
-                        (br.getBrygadzista() != null
-                                ? br.getBrygadzista().getImie() + " " +
-                                br.getBrygadzista().getNazwisko() +
-                                " (" + br.getBrygadzista().getBrygadzistaId() + ")"
-                                : "Brak brygadzisty"),
-                        br.getListaPracownikow().size() + " prac"
-                })
+                        br.getBrygadzista()!=null?br.getBrygadzista().getImie()+" "+br.getBrygadzista().getNazwisko():"Brak brygadzisty",
+                        br.getListaPracownikow().size()+" prac"})
                 .toArray(Object[][]::new);
-
-        return TablePanelFactory.createTablePanel(
-                "Brygady",
-                new String[]{ "ID", "Nazwa brygady", "Brygadzista", "Liczba pracowników" },
-                data
-        );
+        return TablePanelFactory.createTablePanel("Brygady",
+                new String[]{"ID","Nazwa brygady","Brygadzista","Liczba pracowników"}, data);
     }
 
     private TablePanel createZleceniePanel() {
@@ -176,19 +155,13 @@ public class CenterPanel extends JTabbedPane {
                 .map(z -> new Object[]{
                         z.getId(),
                         z.getStan_zlecenia(),
-                        z.getBrygada() != null ? z.getBrygada().getName() : "Brak",
-                        z.getPraca().size(),
-                        z.getDataUtworzenia().toString(),
-                        z.getDataRozpoczecia() != null ? z.getDataRozpoczecia().toString() : "",
-                        z.getDataZakonczenia() != null ? z.getDataZakonczenia().toString() : ""
-                })
+                        z.getBrygada()!=null?z.getBrygada().getName():"Brak",
+                        z.getPraca().size(),z.getDataUtworzenia(),
+                        z.getDataRozpoczecia()!=null?z.getDataRozpoczecia():"",
+                        z.getDataZakonczenia()!=null?z.getDataZakonczenia():""})
                 .toArray(Object[][]::new);
-
-        return TablePanelFactory.createTablePanel(
-                "Zlecenia",
-                new String[]{ "ID", "Stan", "Brygada", "Liczba prac", "Data utworzenia", "Data rozpoczęcia", "Data zakończenia" },
-                data
-        );
+        return TablePanelFactory.createTablePanel("Zlecenia",
+                new String[]{"ID","Stan","Brygada","Liczba prac","Data utworzenia","Data rozpoczęcia","Data zakończenia"}, data);
     }
 
     private TablePanel createPracaPanel() {
@@ -199,42 +172,38 @@ public class CenterPanel extends JTabbedPane {
                         p.getRodzajPracy(),
                         p.getCzasPracy(),
                         p.isCzyZrealizowane(),
-                        p.getZlecenie() != null ? p.getZlecenie().getId() : "Brak"
-                })
+                        p.getZlecenie()!=null?p.getZlecenie().getId():"Brak"})
                 .toArray(Object[][]::new);
-
-        return TablePanelFactory.createTablePanel(
-                "Prace",
-                new String[]{ "ID", "Opis", "Rodzaj", "Czas (min)", "Zrealizowane", "Zlecenie ID" },
-                data
-        );
+        return TablePanelFactory.createTablePanel("Prace",
+                new String[]{"ID","Opis","Rodzaj","Czas (min)","Zrealizowane","Zlecenie ID"}, data);
     }
 
-    public TablePanel getDzialPanel() {
+    public TablePanel getDzialPanel()
+    {
         return dzialPanel;
     }
-
-    public TablePanel getPracownikPanel() {
+    public TablePanel getPracownikPanel()
+    {
         return pracownikPanel;
     }
-
-    public TablePanel getUzytkownikPanel() {
+    public TablePanel getUzytkownikPanel()
+    {
         return uzytkownikPanel;
     }
-
-    public TablePanel getBrygadzistaPanel() {
+    public TablePanel getBrygadzistaPanel()
+    {
         return brygadzistaPanel;
     }
-
-    public TablePanel getBrygadaPanel() {
+    public TablePanel getBrygadaPanel()
+    {
         return brygadaPanel;
     }
-
-    public TablePanel getZleceniePanel() {
+    public TablePanel getZleceniePanel()
+    {
         return zleceniePanel;
     }
-
-    public TablePanel getPracaPanel() {
+    public TablePanel getPracaPanel()
+    {
         return pracaPanel;
     }
 }

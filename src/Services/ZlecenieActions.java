@@ -90,35 +90,22 @@ public class ZlecenieActions implements EntityActions {
                     z.getDataZakonczenia() != null ? z.getDataZakonczenia().toString() : ""
             });
         });
+        centerPanel.refreshAllTabs();
+        centerPanel.setSelectedTab("Zlecenie");
     }
 
     @Override
     public void onEdit() {
-        List<Zlecenie> list = ZlecenieService.getZlecenia();
-        if (list.isEmpty()) {
-            JOptionPane.showMessageDialog(parent, "Brak zleceń do edycji.");
+        TablePanel tp = centerPanel.getZleceniePanel();
+        JTable table = tp.getTable();
+        int selectedRow = table.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(parent, "Nie zaznaczono żadnego zlecenia.");
             return;
         }
 
-        String[] opts = list.stream()
-                .map(z -> z.getId() + " - " + z.getStan_zlecenia() +
-                        " (Brygada: " +
-                        (z.getBrygada() != null ? z.getBrygada().getName() : "Brak") +
-                        ")")
-                .toArray(String[]::new);
-
-        String sel = (String) JOptionPane.showInputDialog(
-                parent,
-                "Wybierz zlecenie:",
-                "Edytuj zlecenie",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                opts,
-                opts[0]
-        );
-        if (sel == null) return;
-
-        int id = Integer.parseInt(sel.split(" - ")[0]);
+        int id = ((Number) tp.getTableModel().getValueAt(selectedRow, 0)).intValue();
         Optional<Zlecenie> opt = ZlecenieService.getById(id);
         if (opt.isEmpty()) return;
 
@@ -126,22 +113,18 @@ public class ZlecenieActions implements EntityActions {
         Optional<Zlecenie> updated = AddZlecenieDialog.showDialog(frame, opt.get());
 
         updated.ifPresent(z -> {
-            TablePanel tp = centerPanel.getZleceniePanel();
             DefaultTableModel m = tp.getTableModel();
-            for (int r = 0; r < m.getRowCount(); r++) {
-                int rowId = ((Number) m.getValueAt(r, 0)).intValue();
-                if (rowId == id) {
-                    m.setValueAt(z.getStan_zlecenia(), r, 1);
-                    m.setValueAt(z.getBrygada() != null ? z.getBrygada().getName() : "Brak", r, 2);
-                    m.setValueAt(z.getPraca().size(), r, 3);
-                    m.setValueAt(z.getDataUtworzenia().toString(), r, 4);
-                    m.setValueAt(z.getDataRozpoczecia() != null ? z.getDataRozpoczecia().toString() : "", r, 5);
-                    m.setValueAt(z.getDataZakonczenia() != null ? z.getDataZakonczenia().toString() : "", r, 6);
-                    break;
-                }
-            }
+            m.setValueAt(z.getStan_zlecenia(), selectedRow, 1);
+            m.setValueAt(z.getBrygada() != null ? z.getBrygada().getName() : "Brak", selectedRow, 2);
+            m.setValueAt(z.getPraca().size(), selectedRow, 3);
+            m.setValueAt(z.getDataUtworzenia().toString(), selectedRow, 4);
+            m.setValueAt(z.getDataRozpoczecia() != null ? z.getDataRozpoczecia().toString() : "", selectedRow, 5);
+            m.setValueAt(z.getDataZakonczenia() != null ? z.getDataZakonczenia().toString() : "", selectedRow, 6);
         });
+        centerPanel.refreshAllTabs();
+        centerPanel.setSelectedTab("Zlecenie");
     }
+
 
     @Override
     public void onDelete() {
